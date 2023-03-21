@@ -1,0 +1,43 @@
+﻿<Application
+    x:Class="CJDBelegungsplaner.WPF.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:CJDBelegungsplaner.WPF"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <!--
+        Rausgenommen:
+        StartupUri="MainWindow.xaml"
+        Verlegt nach:
+        App.xaml.cs
+    -->
+    <Application.Resources>
+
+        <ResourceDictionary>
+
+            <!--  Converters  -->
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <BorderGapMaskConverter x:Key="BorderGapMaskConverter" />
+
+            <!--  TertiaryColor  -->
+            <Color x:Key="TertiaryColor">#F07D00</Color>
+            <SolidColorBrush x:Key="TertiaryColorBrush" Color="{StaticResource TertiaryColor}" />
+
+            <ResourceDictionary.MergedDictionaries>
+
+                <!--  ColorTheme  -->
+                <materialDesign:CustomColorTheme
+                    BaseTheme="Light"
+                    PrimaryColor="#96c21c"
+                    SecondaryColor="#006b99" />
+
+                <!--  ResourceDictionaries  -->
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="/Styles/SimpleTextButton.xaml" />
+                <ResourceDictionary Source="/Styles/CommonDataGrid.xaml" />
+                <ResourceDictionary Source="/Styles/NavigationBarRadioButtons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+        </ResourceDictionary>
+
+    </Application.Resources>
+</Application>
