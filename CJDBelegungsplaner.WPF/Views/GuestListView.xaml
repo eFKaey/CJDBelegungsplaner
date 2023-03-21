@@ -1,0 +1,238 @@
+﻿<UserControl
+    x:Class="CJDBelegungsplaner.WPF.Views.GuestListView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:components="clr-namespace:CJDBelegungsplaner.WPF.Components"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:CJDBelegungsplaner.WPF.Views"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <!--
+        Eingabe Form als Overlay
+        ._____                             _____   _         _
+        |  __ \                           |  __ \ (_)       | |
+        | |__) |___   _ __   _   _  _ __  | |  | | _   __ _ | |  ___    __ _
+        |  ___// _ \ | '_ \ | | | || '_ \ | |  | || | / _` || | / _ \  / _` |
+        | |   | (_) || |_) || |_| || |_) || |__| || || (_| || || (_) || (_| |
+        |_|    \___/ | .__/  \__,_|| .__/ |_____/ |_| \__,_||_| \___/  \__, |
+        .............| |           | |                                  __/ |
+        .............|_|           |_|                                 |___/
+    -->
+    <materialDesign:DialogHost
+        CloseOnClickAway="False"
+        DialogTheme="Inherit"
+        IsOpen="{Binding IsDialogOpen}"
+        Placement="Center">
+        <materialDesign:DialogHost.DialogContent>
+            <ContentControl Content="{Binding CurrentFormViewModel}" />
+        </materialDesign:DialogHost.DialogContent>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                Grid.Row="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontSize="24"
+                Text="Gäste" />
+
+            <!--
+                Filter
+                .______  _  _  _               ______
+                |  ____|(_)| || |             |  ____|
+                | |__    _ | || |_  ___  _ __ | |__  ___   _ __  _ __ ___
+                |  __|  | || || __|/ _ \| '__||  __|/ _ \ | '__|| '_ ` _ \
+                | |     | || || |_|  __/| |   | |  | (_) || |   | | | | | |
+                |_|     |_||_| \__|\___||_|   |_|   \___/ |_|   |_| |_| |_|
+            -->
+            <components:FilterFormGroupBox
+                Grid.Row="1"
+                Margin="10,0,0,0"
+                HorizontalAlignment="Left"
+                DataContext="{Binding}">
+
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}" TargetType="TextBox">
+                            <Setter Property="Width" Value="130" />
+                            <Setter Property="Margin" Value="10,0,0,0" />
+                            <Setter Property="materialDesign:TextFieldAssist.HasClearButton" Value="True" />
+                        </Style>
+                        <Style BasedOn="{StaticResource MaterialDesignFloatingHintDatePicker}" TargetType="DatePicker">
+                            <Setter Property="Width" Value="120" />
+                            <Setter Property="Margin" Value="10,0,0,0" />
+                            <Setter Property="materialDesign:TextFieldAssist.HasClearButton" Value="True" />
+                        </Style>
+                        <Style BasedOn="{StaticResource MaterialDesignFloatingHintComboBox}" TargetType="ComboBox">
+                            <Setter Property="Width" Value="150" />
+                            <Setter Property="IsEditable" Value="True" />
+                            <Setter Property="Margin" Value="10,0,0,0" />
+                            <Setter Property="materialDesign:TextFieldAssist.HasClearButton" Value="True" />
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <TextBox materialDesign:HintAssist.Hint="Vorname" Text="{Binding Filter.FirstName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBox materialDesign:HintAssist.Hint="Nachname" Text="{Binding Filter.LastName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <DatePicker materialDesign:HintAssist.Hint="Geb. von" Text="{Binding Filter.BirthdateFrom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <DatePicker materialDesign:HintAssist.Hint="Geb. bis" Text="{Binding Filter.BirthdateTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <ComboBox
+                        materialDesign:HintAssist.Hint="Klasse"
+                        materialDesign:TextFieldAssist.HasClearButton="True"
+                        ItemsSource="{Binding Filter.ClassNames}"
+                        SelectedItem="{Binding Filter.ClassName}" />
+
+                    <ComboBox
+                        materialDesign:HintAssist.Hint="Firma"
+                        materialDesign:TextFieldAssist.HasClearButton="True"
+                        ItemsSource="{Binding Filter.CompanyNames}"
+                        SelectedItem="{Binding Filter.CompanyName}" />
+
+                </StackPanel>
+
+            </components:FilterFormGroupBox>
+
+            <!--
+                Hinzufügen Button
+                .............._      _  ____          _    _
+                ..../\       | |    | ||  _ \        | |  | |
+                .../  \    __| |  __| || |_) | _   _ | |_ | |_  ___   _ __
+                ../ /\ \  / _` | / _` ||  _ < | | | || __|| __|/ _ \ | '_ \
+                ./ ____ \| (_| || (_| || |_) || |_| || |_ | |_| (_) || | | |
+                /_/    \_\\__,_| \__,_||____/  \__,_| \__| \__|\___/ |_| |_|
+            -->
+            <Button
+                Grid.Row="1"
+                Margin="0,0,15,0"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Command="{Binding ShowGuestFormCommand}"
+                Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
+                ToolTip="Gast anlegen">
+                <materialDesign:PackIcon
+                    Width="25"
+                    Height="25"
+                    Kind="Plus" />
+            </Button>
+
+            <!--
+                Guest Liste
+                .._____                    _    _       _       _
+                ./ ____|                  | |  | |     (_)     | |
+                | |  __  _   _   ___  ___ | |_ | |      _  ___ | |_  ___
+                | | |_ || | | | / _ \/ __|| __|| |     | |/ __|| __|/ _ \
+                | |__| || |_| ||  __/\__ \| |_ | |____ | |\__ \| |_|  __/
+                .\_____| \__,_| \___||___/ \__||______||_||___/ \__|\___|
+            -->
+            <DataGrid
+                Grid.Row="2"
+                ItemsSource="{Binding GuestList.View}"
+                Style="{StaticResource CommonDataGrid}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding FirstName}" Header="Vorname" />
+                    <DataGridTextColumn Binding="{Binding LastName}" Header="Nachname" />
+                    <DataGridTextColumn Binding="{Binding Birthdate, StringFormat=\{0:dd.MM.yyyy\}}" Header="Geburtsdatum">
+                        <DataGridTextColumn.CellStyle>
+                            <Style BasedOn="{StaticResource MaterialDesignDataGridCell}" TargetType="DataGridCell">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUnderAge}" Value="True">
+                                        <Setter Property="Foreground" Value="Red" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Klasse">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Command="{Binding Path=DataContext.ShowClassCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Content="{Binding Class.Name}"
+                                    Style="{StaticResource SimpleTextButton}"
+                                    ToolTip="Klasse anzeigen" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Firma">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Command="{Binding Path=DataContext.ShowCompanyCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Content="{Binding Company.Name}"
+                                    Style="{StaticResource SimpleTextButton}"
+                                    ToolTip="Firma anzeigen" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Info">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <materialDesign:PackIcon
+                                    Kind="Information"
+                                    Style="{DynamicResource CommonDataGridPackIcon}"
+                                    ToolTip="{Binding Information}"
+                                    Visibility="{Binding IsInformation, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Binding="{Binding Created}" Header="Erstellt" />
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Command="{Binding Path=DataContext.ShowGuestFormCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Style="{DynamicResource CommonDataGridIconButton}"
+                                    ToolTip="Bearbeiten">
+                                    <materialDesign:PackIcon Kind="Edit" Style="{DynamicResource CommonDataGridPackIcon}" />
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Command="{Binding Path=DataContext.ShowGuestDetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Style="{DynamicResource CommonDataGridIconButton}"
+                                    ToolTip="Details">
+                                    <materialDesign:PackIcon Kind="ClipboardSearchOutline" Style="{DynamicResource CommonDataGridPackIcon}" />
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Command="{Binding Path=DataContext.ShowDeleteMessageCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Style="{DynamicResource CommonDataGridIconButton}"
+                                    ToolTip="Löschen">
+                                    <materialDesign:PackIcon Kind="Delete" Style="{DynamicResource CommonDataGridPackIcon}" />
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+        </Grid>
+
+    </materialDesign:DialogHost>
+</UserControl>
