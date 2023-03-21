@@ -1,0 +1,185 @@
+﻿<UserControl
+    x:Class="CJDBelegungsplaner.WPF.Views.ReservationView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:CJDBelegungsplaner.WPF.Views"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="clr-namespace:CJDBelegungsplaner.WPF.ViewModels"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <!--
+        ._____                             _____   _         _
+        |  __ \                           |  __ \ (_)       | |
+        | |__) |___   _ __   _   _  _ __  | |  | | _   __ _ | |  ___    __ _
+        |  ___// _ \ | '_ \ | | | || '_ \ | |  | || | / _` || | / _ \  / _` |
+        | |   | (_) || |_) || |_| || |_) || |__| || || (_| || || (_) || (_| |
+        |_|    \___/ | .__/  \__,_|| .__/ |_____/ |_| \__,_||_| \___/  \__, |
+        .............| |           | |                                  __/ |
+        .............|_|           |_|                                 |___/
+    -->
+    <materialDesign:DialogHost
+        CloseOnClickAway="False"
+        DialogTheme="Inherit"
+        IsOpen="{Binding IsDialogOpen}"
+        Placement="Center">
+        <materialDesign:DialogHost.DialogContent>
+            <ContentControl Content="{Binding CurrentFormViewModel}" />
+        </materialDesign:DialogHost.DialogContent>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                Grid.Row="0"
+                HorizontalAlignment="Left"
+                FontSize="24"
+                Text="Reservierungen" />
+
+            <DatePicker
+                Grid.Row="0"
+                Width="150"
+                HorizontalAlignment="Center"
+                materialDesign:HintAssist.Hint="Start Datum"
+                materialDesign:TextFieldAssist.HasClearButton="True"
+                Style="{StaticResource MaterialDesignFloatingHintDatePicker}"
+                Text="{Binding StartDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <ComboBox
+                Grid.Row="0"
+                Width="80"
+                HorizontalAlignment="Right"
+                materialDesign:HintAssist.Hint="Spalten"
+                ItemsSource="{Binding ColumnAmountSource}"
+                SelectedItem="{Binding ColumnAmount}"
+                Style="{StaticResource MaterialDesignFloatingHintComboBox}" />
+
+            <!--
+                ._       _       _
+                | |     (_)     | |
+                | |      _  ___ | |_  ___
+                | |     | |/ __|| __|/ _ \
+                | |____ | |\__ \| |_|  __/
+                |______||_||___/ \__|\___|
+            -->
+            <DataGrid
+                x:Name="ReservationDataGrid"
+                Grid.Row="2"
+                AutoGeneratingColumn="ReservationDataGrid_AutoGeneratingColumn"
+                CanUserSortColumns="False"
+                IsReadOnly="True"
+                ItemsSource="{Binding DataTable}">
+                <DataGrid.Resources>
+                    <!--
+                        .._____ _                 _______                   _       _
+                        ./ ____| |               |__   __|                 | |     | |
+                        | |    | | __ _ ___ ___     | | ___ _ __ ___  _ __ | | __ _| |_ ___
+                        | |    | |/ _` / __/ __|    | |/ _ \ '_ ` _ \| '_ \| |/ _` | __/ _ \
+                        | |____| | (_| \__ \__ \    | |  __/ | | | | | |_) | | (_| | ||  __/
+                        .\_____|_|\__,_|___/___/    |_|\___|_| |_| |_| .__/|_|\__,_|\__\___|
+                        .............................................| |
+                        .............................................|_|
+                    -->
+                    <DataTemplate x:Key="ClassReservationContainerTemplate">
+                        <Border
+                            Padding="3"
+                            BorderBrush="LightBlue"
+                            BorderThickness="1">
+                            <Grid>
+                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path=Info}" />
+                                <Button
+                                    Margin="0,0,10,0"
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding Path=DataContext.ShowReservationFormForUpdatingClassReservationCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Content="O"
+                                    Style="{StaticResource SimpleTextButton}"
+                                    ToolTip="Klassen Reservierung bearbeiten" />
+                                <Button
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding Path=DataContext.ShowDeleteClassReservationMessageCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Content="X"
+                                    Style="{StaticResource SimpleTextButton}"
+                                    ToolTip="Klassen Reservierung löschen" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                    <!--
+                        .._____                 _     _______                   _       _
+                        ./ ____|               | |   |__   __|                 | |     | |
+                        | |  __ _   _  ___  ___| |_     | | ___ _ __ ___  _ __ | | __ _| |_ ___
+                        | | |_ | | | |/ _ \/ __| __|    | |/ _ \ '_ ` _ \| '_ \| |/ _` | __/ _ \
+                        | |__| | |_| |  __/\__ \ |_     | |  __/ | | | | | |_) | | (_| | ||  __/
+                        .\_____|\__,_|\___||___/\__|    |_|\___|_| |_| |_| .__/|_|\__,_|\__\___|
+                        .................................................| |
+                        .................................................|_|
+                    -->
+                    <DataTemplate x:Key="GuestReservationContainerTemplate">
+                        <Border
+                            Padding="3"
+                            BorderBrush="LightCoral"
+                            BorderThickness="1">
+                            <Grid>
+                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path=Info}" />
+                                <Button
+                                    Margin="0,0,10,0"
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding Path=DataContext.ShowReservationFormForUpdatingGuestReservationCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Content="O"
+                                    Style="{StaticResource SimpleTextButton}"
+                                    ToolTip="Gast Reservierung bearbeiten" />
+                                <Button
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding Path=DataContext.ShowDeleteGuestReservationMessageCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                    CommandParameter="{Binding}"
+                                    Content="X"
+                                    Style="{StaticResource SimpleTextButton}"
+                                    ToolTip="Gast Reservierung löschen" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                    <!--
+                        .____        _   _                _______                   _       _
+                        |  _ \      | | | |              |__   __|                 | |     | |
+                        | |_) |_   _| |_| |_ ___  _ __      | | ___ _ __ ___  _ __ | | __ _| |_ ___
+                        |  _ <| | | | __| __/ _ \| '_ \     | |/ _ \ '_ ` _ \| '_ \| |/ _` | __/ _ \
+                        | |_) | |_| | |_| || (_) | | | |    | |  __/ | | | | | |_) | | (_| | ||  __/
+                        |____/ \__,_|\__|\__\___/|_| |_|    |_|\___|_| |_| |_| .__/|_|\__,_|\__\___|
+                        .....................................................| |
+                        .....................................................|_|
+                    -->
+                    <DataTemplate x:Key="ButtonReservationContainerTemplate">
+                        <Grid>
+                            <Button
+                                Grid.Row="1"
+                                Width="30"
+                                Height="30"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Command="{Binding Path=DataContext.ShowReservationFormForCreatingCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                CommandParameter="{Binding}"
+                                Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
+                                ToolTip="Einer Klasse eine Reservierung hinzufügen">
+                                <materialDesign:PackIcon
+                                    Width="15"
+                                    Height="15"
+                                    Kind="Plus" />
+                            </Button>
+                        </Grid>
+                    </DataTemplate>
+                </DataGrid.Resources>
+            </DataGrid>
+
+        </Grid>
+
+    </materialDesign:DialogHost>
+</UserControl>
