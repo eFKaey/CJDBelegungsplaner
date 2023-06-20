@@ -95,7 +95,7 @@
             ItemsSource="{Binding LogEntryList.View}"
             Style="{StaticResource CommonDataGrid}">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding User.Name}" Header="Benutzer" />
+                <DataGridTextColumn Binding="{Binding UserName}" Header="Benutzer" />
                 <DataGridTextColumn Binding="{Binding Action}" Header="Aktion" />
                 <DataGridTextColumn Binding="{Binding Created}" Header="Erstellt" />
             </DataGrid.Columns>

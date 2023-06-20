@@ -64,7 +64,6 @@ public partial class NavigationBarViewModel : ViewModelBase
         _mainViewModelStore.Modal.NavigateTo(typeof(ChangePasswordInputFormViewModel),(viewModel) =>
         {
             var form = viewModel as ChangePasswordInputFormViewModel;
-            form.SaveCompleted = (user) => { };
             form.ExecuteClose = () => _mainViewModelStore.Modal.Close();
         });
     }

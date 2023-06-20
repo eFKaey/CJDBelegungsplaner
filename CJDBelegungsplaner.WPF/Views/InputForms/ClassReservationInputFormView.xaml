@@ -23,6 +23,10 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
             <Grid.Resources>
                 <Style x:Key="LocalKey_RaservationGrid" TargetType="Grid">
                     <Setter Property="Margin" Value="15,10,15,10" />
@@ -113,14 +117,8 @@
 
             </Grid.Resources>
 
-            <!--<TextBlock
-                Grid.Row="0"
-                Margin="0,0,0,10"
-                HorizontalAlignment="Center"
-                FontSize="20"
-                Text="Reservierung hinzufügen" />-->
-
-            <Grid Style="{StaticResource LocalKey_RaservationGrid}">
+            <!--  Linke Spalte  -->
+            <Grid Grid.Column="0" Style="{StaticResource LocalKey_RaservationGrid}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="auto" />
@@ -178,6 +176,37 @@
                         Command="{Binding CloseCommand}"
                         Style="{StaticResource LocalKey_ButtonAbort}" />
                 </Grid>
+            </Grid>
+
+            <!--  Rechte Spalte  -->
+            <Grid
+                Grid.Row="0"
+                Grid.Column="1"
+                MinWidth="230"
+                Margin="15,0,0,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock
+                    Grid.Row="0"
+                    FontWeight="Bold"
+                    Text="Reservierungen Von-Bis" />
+                <ListBox
+                    Grid.Row="1"
+                    DisplayMemberPath="DateRangeFormatted"
+                    IsHitTestVisible="False"
+                    ItemsSource="{Binding Reservations}">
+                    <ListBox.ItemContainerStyle>
+                        <Style BasedOn="{StaticResource MaterialDesignListBoxItem}" TargetType="ListBoxItem">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEndDatePast}" Value="True">
+                                    <Setter Property="Foreground" Value="LightPink" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
             </Grid>
 
         </Grid>

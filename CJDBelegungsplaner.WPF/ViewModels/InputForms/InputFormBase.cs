@@ -54,13 +54,12 @@ public abstract partial class InputFormBase : ObservableValidator, IDisposable, 
     public new void ValidateProperty(object? value, string? propertyName = null)
         => base.ValidateProperty(value, propertyName!);
 
-
     [RelayCommand]
     protected void Close()
     {
         if (ExecuteClose is null)
         {
-            throw new NullReferenceException(nameof(ExecuteClose));
+            return;
         }
 
         ExecuteClose();

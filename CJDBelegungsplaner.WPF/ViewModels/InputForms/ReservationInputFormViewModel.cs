@@ -18,7 +18,7 @@ public partial class ReservationInputFormViewModel : InputFormBase
     public string? Begin { get; set; }
     public string? End { get; set; }
 
-    public EntityObject EditReservation { get; set; }
+    public Reservation EditReservation { get; set; }
     public bool IsNewEntity => EditReservation is null;
 
     public bool IsClassFormButtonChecked { get; set; } = true;
@@ -29,12 +29,12 @@ public partial class ReservationInputFormViewModel : InputFormBase
     /// <summary>
     /// Wird am Ende des Speicher/Update-Vorgangs ausgeführt.
     /// </summary>
-    public Action<ClassReservation>? SaveClassReservationCompleted;
+    public Action<ClassReservation, InputFormBase<ClassReservation>>? SaveClassReservationCompleted;
 
     /// <summary>
     /// Wird am Ende des Speicher/Update-Vorgangs ausgeführt.
     /// </summary>
-    public Action<GuestReservation>? SaveGuestReservationCompleted;
+    public Action<GuestReservation, InputFormBase<GuestReservation>>? SaveGuestReservationCompleted;
 
     private IServiceScope _serviceScope;
 

@@ -7,11 +7,9 @@ public class ReservationCellContainerOfTModelOfTReservation<TModel, TReservation
     where TModel : EntityObject, IModelWithReservation<TReservation>
     where TReservation : Reservation
 {
-    public TModel Entity { get; private set; }
+    public override TModel Entity { get; }
 
-    public TReservation Reservation { get; private set; }
-
-    public override string Info => $"{Entity.Name} ({Reservation.Begin.ToString("dd")}-{Reservation.End.ToString("dd")})";
+    public override TReservation Reservation { get; }
 
     public ReservationCellContainerOfTModelOfTReservation(DataColumnWeek dataColumnWeek, int row, int column, TModel entity, TReservation reservation, ReservationCellContainer? relatedContainer)
         : base(dataColumnWeek, row, column, relatedContainer)

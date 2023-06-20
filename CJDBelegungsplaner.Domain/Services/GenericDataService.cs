@@ -178,4 +178,40 @@ public class GenericDataService<TModel> : IGenericDataService<TModel> where TMod
 
         return response.Success(DataServiceResultKind.Success);
     }
+
+    //
+    //
+    //
+
+    public async Task<Result<DataServiceResultKind>> DeleteRangeAsync(Func<Task<ICollection<TModel>>> funcLINQ)
+    {
+        Result<DataServiceResultKind, ICollection<TModel>> response = new();
+
+        if (!_context.Database.CanConnect())
+        {
+            return response.Failure(DataServiceResultKind.NoDatabaseConnection);
+        }
+
+        ICollection<TModel> entities;
+
+        try
+        {
+            entities = await funcLINQ();
+
+            if (entities.Count == 0)
+            {
+                return response.Success(DataServiceResultKind.Success, entities);
+            }
+
+            _context.Set<TModel>().RemoveRange(entities);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception exception)
+        {
+            _context.ChangeTracker.Clear();
+            return response.PassOn(_handleDataExceptionService.Handle(exception));
+        }
+
+        return response.Success(DataServiceResultKind.Success, entities);
+    }
 }

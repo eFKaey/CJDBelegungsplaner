@@ -104,7 +104,7 @@ public partial class UserInputFormViewModel : InputFormBase<User>
 
         Result<AuthenticationResultKind, User> result;
 
-        result = await Task.Run(() => _authenticationService.Register(
+        result = await Task.Run(() => _authenticationService.RegisterAsync(
             Name,
             Role,
             Password,
@@ -134,7 +134,7 @@ public partial class UserInputFormViewModel : InputFormBase<User>
 
         if (IsPasswordEnabled)
         {
-            result = await Task.Run(() => _authenticationService.Update(
+            result = await Task.Run(() => _authenticationService.UpdateAsync(
                 EditEntity,
                 Name,
                 Role,
@@ -143,7 +143,7 @@ public partial class UserInputFormViewModel : InputFormBase<User>
         }
         else
         {
-            result = await Task.Run(() => _authenticationService.Update(
+            result = await Task.Run(() => _authenticationService.UpdateAsync(
                 EditEntity,
                 Name,
                 Role));

@@ -60,7 +60,7 @@ namespace CJDBelegungsplaner.WPF.ViewModels.InputForms
 
             User tempUser = EditEntity;
 
-            result = await _authenticationService.Update(
+            result = await _authenticationService.UpdateAsync(
                 EditEntity,
                 Password,
                 ConfirmPassword

@@ -58,13 +58,13 @@
                 Content="Login"
                 Style="{StaticResource MaterialDesignRaisedSecondaryButton}" />
 
-            <Button
+            <!--<Button
                 materialDesign:ButtonProgressAssist.IsIndeterminate="True"
                 materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsLoginInProgress}"
                 materialDesign:ButtonProgressAssist.Value="-1"
                 Command="{Binding EasyLoginCommand}"
                 Content="EasyLogin"
-                Style="{StaticResource MaterialDesignRaisedSecondaryButton}" />
+                Style="{StaticResource MaterialDesignRaisedSecondaryButton}" />-->
 
         </WrapPanel>
 

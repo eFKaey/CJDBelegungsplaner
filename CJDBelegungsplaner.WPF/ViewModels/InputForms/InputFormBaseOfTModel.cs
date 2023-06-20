@@ -12,28 +12,30 @@ public abstract partial class InputFormBase<TModel> : InputFormBase
     where TModel : EntityObject
 {
     /// <summary>
-    /// Wird am Ende des Speicher/Update-Vorgangs ausgeführt.
+    /// Ein Delegate, der am Ende des Speicher/Update-Vorgangs ausgeführt wird.
     /// </summary>
-    public Action<TModel>? SaveCompleted;
+    public Action<TModel, InputFormBase<TModel>>? SaveCompleted;
 
+    /// <summary>
+    /// Enthält die zu bearbeitende Entität.
+    /// </summary>
     public virtual TModel? EditEntity { get; set; }
 
     public bool IsNewEntity => EditEntity is null;
 
     /// <summary>
-    /// Sollte die Validation-Logik beinhalten (ValidateProperty(PROPERTY)...).
+    /// Delegate, der die Validation-Logik beinhalten sollte (ValidateProperty(PROPERTY)...).
     /// Wenn null wird ValidateAllProperties() ausgeführt.
     /// </summary>
     public Action? ExecuteValidation;
 
+    /// <summary>
+    /// Metthode, die den Speichervorgang ausführt. Wird durch das drücken des Speicherbuttons
+    /// aufgerufen.
+    /// </summary>
     [RelayCommand]
     private async Task SaveAsync()
     {
-        if (SaveCompleted is null)
-        {
-            throw new NullReferenceException(nameof(SaveCompleted));
-        }
-
         if (ExecuteValidation is null)
         {
             ValidateAllProperties();
@@ -69,13 +71,22 @@ public abstract partial class InputFormBase<TModel> : InputFormBase
             return;
         }
 
-        SaveCompleted(entity);
+        if (SaveCompleted is not null)
+        {
+            SaveCompleted(entity, this);
+        }
 
         Close();
     }
 
+    /// <summary>
+    /// Abstrakte Methode zum Erstellen einer neuen Entität.
+    /// </summary>
     public abstract Task<(bool, TModel)> CreateAsync();
 
+    /// <summary>
+    /// Abstrakte Methode zum Bearbeiten einer vorhandenen Entität.
+    /// </summary>
     public abstract Task<(bool, TModel)> UpdateAsync();
 
     public override void Dispose()

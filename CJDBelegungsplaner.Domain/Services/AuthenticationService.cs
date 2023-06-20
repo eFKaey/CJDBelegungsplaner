@@ -8,8 +8,6 @@ namespace SimpleTrader.Domain.Services;
 public class AuthenticationService : IAuthenticationService
 {
     private readonly IUserDataService _userDataService;
-
-    /// Nuget: Microsoft.AspNet.Identity.Core
     private readonly IPasswordHasher _passwordHasher;
 
     public AuthenticationService(IUserDataService userDataService, IPasswordHasher passwordHasher)
@@ -18,13 +16,9 @@ public class AuthenticationService : IAuthenticationService
         _passwordHasher = passwordHasher;
     }
 
-    //
-    //
-    //
-
-    public async Task<Result<AuthenticationResultKind, User>> Login(string userName, string password)
+    public async Task<Result<AuthenticationResultKind, User>> LoginAsync(string userName, string password)
     {
-        Result<DataServiceResultKind, User> result = await _userDataService.GetByUserName(userName);
+        Result<DataServiceResultKind, User> result = await _userDataService.GetByUserNameAsync(userName);
 
         Result<AuthenticationResultKind, User> response = new();
 
@@ -50,7 +44,6 @@ public class AuthenticationService : IAuthenticationService
 
         storedUser.LastLogin = DateTime.Now;
         storedUser.IsLoggedIn = true;
-        //storedUser.LogEntries.Add(new LogEntry { Action = "Login.", Created = storedUser.LastLogin });
 
         result = await _userDataService.UpdateAsync(storedUser.Id, storedUser);
 
@@ -63,17 +56,12 @@ public class AuthenticationService : IAuthenticationService
         return response.PassOn(result);
     }
 
-    //
-    //
-    //
-
-    public async Task<Result<AuthenticationResultKind>> Logout(User user)
+    public async Task<Result<AuthenticationResultKind>> LogoutAsync(User user)
     {
         User tempUser = user.Clone();
 
         user.LastLogout = DateTime.Now;
         user.IsLoggedIn = false;
-        //user.LogEntries.Add(new LogEntry { Action = "Logout.", Created = user.LastLogout });
 
         Result<DataServiceResultKind, User> result = await _userDataService.UpdateAsync(user.Id, user);
 
@@ -85,15 +73,11 @@ public class AuthenticationService : IAuthenticationService
         return new Result<AuthenticationResultKind>().PassOn(result);
     }
 
-    //
-    //
-    //
-
-    public async Task<Result<AuthenticationResultKind, User>> Register(string userName, Role role, string password, string confirmPassword)
+    public async Task<Result<AuthenticationResultKind, User>> RegisterAsync(string userName, Role role, string password, string confirmPassword)
     {
         Result<AuthenticationResultKind, User> result;
 
-        result = await ValidateUserName(userName, -1);
+        result = await ValidateUserNameAsync(userName, -1);
 
         if (result.IsFailure) {
             return result; }
@@ -119,13 +103,9 @@ public class AuthenticationService : IAuthenticationService
         return new Result<AuthenticationResultKind, User>().PassOn(await _userDataService.CreateAsync(newUser));
     }
 
-    //
-    //
-    //
-
-    public async Task<Result<AuthenticationResultKind, User>> Update(User orginalUser, string userName, Role role)
+    public async Task<Result<AuthenticationResultKind, User>> UpdateAsync(User orginalUser, string userName, Role role)
     {
-        Result<AuthenticationResultKind, User> result = await ValidateUserName(userName, orginalUser.Id);
+        Result<AuthenticationResultKind, User> result = await ValidateUserNameAsync(userName, orginalUser.Id);
 
         if (result.IsFailure) {
             return result;  }
@@ -136,15 +116,11 @@ public class AuthenticationService : IAuthenticationService
         return new Result<AuthenticationResultKind, User>().PassOn(await _userDataService.UpdateAsync(orginalUser.Id, orginalUser));
     }
 
-    //
-    //
-    //
-
-    public async Task<Result<AuthenticationResultKind, User>> Update(User orginalUser, string userName, Role role, string password, string confirmPassword)
+    public async Task<Result<AuthenticationResultKind, User>> UpdateAsync(User orginalUser, string userName, Role role, string password, string confirmPassword)
     {
         Result<AuthenticationResultKind, User> result;
 
-        result = await ValidateUserName(userName, orginalUser.Id);
+        result = await ValidateUserNameAsync(userName, orginalUser.Id);
 
         if (result.IsFailure) {
             return result; }
@@ -163,11 +139,7 @@ public class AuthenticationService : IAuthenticationService
         return new Result<AuthenticationResultKind, User>().PassOn(await _userDataService.UpdateAsync(orginalUser.Id, orginalUser));
     }
 
-    //
-    //
-    //
-
-    public async Task<Result<AuthenticationResultKind, User>> Update(User orginalUser, string password, string confirmPassword)
+    public async Task<Result<AuthenticationResultKind, User>> UpdateAsync(User orginalUser, string password, string confirmPassword)
     {
         Result<AuthenticationResultKind, User> result;
 
@@ -185,18 +157,14 @@ public class AuthenticationService : IAuthenticationService
         return new Result<AuthenticationResultKind, User>().PassOn(await _userDataService.UpdateAsync(orginalUser.Id, orginalUser));
     }
 
-    //
-    //
-    //
-
-    private async Task<Result<AuthenticationResultKind, User>> ValidateUserName(string userName, int id)
+    private async Task<Result<AuthenticationResultKind, User>> ValidateUserNameAsync(string userName, int id)
     {
         Result<AuthenticationResultKind, User> response = new();
 
         if (userName.Length < 2) {
             return response.Failure(AuthenticationResultKind.UserNameIsToShort); }
 
-        Result<DataServiceResultKind, User> result = await _userDataService.GetByUserName(userName);
+        Result<DataServiceResultKind, User> result = await _userDataService.GetByUserNameAsync(userName);
 
         if (result.IsSuccess && id != result.Content?.Id)
         {
@@ -209,10 +177,6 @@ public class AuthenticationService : IAuthenticationService
 
         return new Result<AuthenticationResultKind, User>().PassOn(result);
     }
-
-    //
-    //
-    //
 
     private Result<AuthenticationResultKind, User> ValidatePassword(string password, string confirmPassword)
     {

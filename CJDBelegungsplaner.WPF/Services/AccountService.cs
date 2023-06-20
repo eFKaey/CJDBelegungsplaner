@@ -19,28 +19,31 @@ public class AccountService : IAccountService
         private set => _accountStore.User = value;
     }
 
+    #endregion
+
+    #region Konstruktor
+
     private readonly AccountStore _accountStore;
     private readonly IAuthenticationService _authenticationService;
     private readonly IDialogService _dialogService;
     private readonly IUserDataService _userDataService;
     private readonly IHandleResultService _handleResultService;
-
-    #endregion
-
-    #region Konstruktor
+    private readonly ILogEntryDataService _logDataService;
 
     public AccountService(
         IAuthenticationService authenticationService,
         IDialogService dialogService,
         IUserDataService userDataService,
         AccountStore accountStore,
-        IHandleResultService handleResultService)
+        IHandleResultService handleResultService,
+        ILogEntryDataService logDataService)
     {
         _authenticationService = authenticationService;
         _dialogService = dialogService;
         _userDataService = userDataService;
         _accountStore = accountStore;
         _handleResultService = handleResultService;
+        _logDataService = logDataService;
     }
 
     #endregion
@@ -49,7 +52,7 @@ public class AccountService : IAccountService
     {
         bool isFailure = true;
 
-        Result<AuthenticationResultKind, User> result = _authenticationService.Login(userName, password).Result;
+        Result<AuthenticationResultKind, User> result = _authenticationService.LoginAsync(userName, password).Result;
 
         User = result.Content;
 
@@ -77,6 +80,9 @@ public class AccountService : IAccountService
             return false;
         }
 
+        // Alte Logeinträge löschen
+        _logDataService.DeleteAllBeforeAsync(DateTime.Now.AddYears(-1));
+
         if (User!.Role > Role.ReadBedTable)
         {
             _dialogService.ShowMessageDialog(
@@ -94,21 +100,14 @@ public class AccountService : IAccountService
         if (User is null) {
             return; }
 
-        // Result<AuthenticationResultKind> result = await Task.Run(() => _authenticationService.Logout(User));
-
         if (doItSync)
-            await _authenticationService.Logout(User);
+        {
+            await _authenticationService.LogoutAsync(User);
+        }
         else
-            await Task.Run(() => _authenticationService.Logout(User));
-
-        //bool isFailure = _handleResultService.Handle(result);
-
-        //if (isFailure)
-        //{
-        //    return;
-        //}
-
-        // TODO: Sollte bei einem Fehler etwas getan werden? Lokales Logfile?
+        {
+            await Task.Run(() => _authenticationService.LogoutAsync(User));
+        }
 
         User = null;
     }
@@ -127,28 +126,10 @@ public class AccountService : IAccountService
 
         if (result.IsFailure)
         {
-            if (result.Kind == DataServiceResultKind.NoDatabaseConnection)
-            {
-                _dialogService.ShowMessageBox(
-                    "Verbindung zur Datenbank konnt nicht hergestellt werden. Vielleicht keine Netzwerkverbindung? Falls diese Meldung häufiger erscheint, verständigen sie bitte den mighty Administrator.",
-                    "Hoppala.",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-            }
             return false;
         }
 
         User storedUser = result.Content!;
-
-        // TODO: test das mal, wenn von einem anderen Kilenten IsLoggedIn auf flase gesetzt wurde, während dieser hier noch "eingeloggt ist."
-        //if (Object.ReferenceEquals(User, storedUser))
-        //{
-        //    System.Windows.MessageBox.Show("ist identische Referenz");
-        //}
-        //else
-        //{
-        //    System.Windows.MessageBox.Show("ist NICHT identisch");
-        //}
 
         return storedUser.IsLoggedIn;
     }
@@ -187,19 +168,13 @@ public class AccountService : IAccountService
         return list;
     }
 
-    public void MakeUserLogEntry(string action)
+    public void MakeUserLogEntry(string action, EntityObject? entity)
     {
         if (User is null) {
             return; }
 
-        User.LogEntries.Add(new LogEntry
-        {
-            Action = action,
-            Created = DateTime.Now
-        });
+        User.LogEntries.Add(new LogEntry(action, entity));
 
         _userDataService.UpdateAsync(User.Id,User);
-
-        // TODO: Fehler Reluts abgeprüfen? Vlt in lokale Log-Datei schreiben?
     }
 }

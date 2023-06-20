@@ -82,9 +82,15 @@ public class LogEntryListFilter : FilterBase
 
         if (!string.IsNullOrEmpty(Name))
         {
-            isName = row.User.Name.Contains(Name, StringComparison.OrdinalIgnoreCase);
+            if (row.User is null)
+            {
+                isName = false;
+            }
+            else
+            {
+                isName = row.User.Name.Contains(Name, StringComparison.OrdinalIgnoreCase);
+            }
         }
-
         if (!string.IsNullOrEmpty(Action))
         {
             isName = row.Action.Contains(Action, StringComparison.OrdinalIgnoreCase);

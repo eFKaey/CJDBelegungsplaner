@@ -72,7 +72,7 @@
             <!--
                 InputForms
             -->
-            
+
             <DataTemplate DataType="{x:Type inputFormViewModels:ReservationInputFormViewModel}">
                 <inputFormViews:ReservationInputFormView />
             </DataTemplate>
@@ -105,6 +105,18 @@
                 <inputFormViews:ChangePasswordInputFormView />
             </DataTemplate>
 
+            <DataTemplate DataType="{x:Type inputFormViewModels:ClassReservationParticipantsInputFormViewModel}">
+                <inputFormViews:ClassReservationParticipantsInputFormView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type inputFormViewModels:BedInputFormViewModel}">
+                <inputFormViews:BedInputFormView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type inputFormViewModels:OccupancyInputFormViewModel}">
+                <inputFormViews:OccupancyInputFormView />
+            </DataTemplate>
+
             <!--
                 DeleteForms
             -->
@@ -126,6 +138,18 @@
             </DataTemplate>
 
             <DataTemplate DataType="{x:Type deleteFormViewModels:UserDeleteFormViewModel}">
+                <deleteFormViews:DeleteFormView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type deleteFormViewModels:CompanyDeleteFormViewModel}">
+                <deleteFormViews:DeleteFormView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type deleteFormViewModels:BedDeleteFormViewModel}">
+                <deleteFormViews:DeleteFormView />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type deleteFormViewModels:OccupancyDeleteFormViewModel}">
                 <deleteFormViews:DeleteFormView />
             </DataTemplate>
 
@@ -174,24 +198,26 @@
                         Grid.Column="1"
                         Content="{Binding CurrentMainViewModel}"
                         Visibility="{Binding IsMainOpen, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                    <Grid Grid.Column="1" Visibility="{Binding IsSubOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <Button
-                            Grid.Row="0"
-                            HorizontalAlignment="Left"
-                            Command="{Binding CloseSubCommand}"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="Zurück">
-                            <materialDesign:PackIcon Kind="ArrowLeftCircle" />
-                        </Button>
-                        <ContentControl
-                            Grid.Row="0"
-                            Grid.RowSpan="2"
-                            Content="{Binding CurrentSubViewModel}" />
-                    </Grid>
+                    <ScrollViewer Grid.Column="1" Visibility="{Binding IsSubOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Button
+                                Grid.Row="0"
+                                HorizontalAlignment="Left"
+                                Command="{Binding CloseSubCommand}"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Zurück">
+                                <materialDesign:PackIcon Kind="ArrowLeftCircle" />
+                            </Button>
+                            <ContentControl
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                Content="{Binding CurrentSubViewModel}" />
+                        </Grid>
+                    </ScrollViewer>
 
                 </Grid>
                 <Grid Visibility="{Binding IsViewBlocked, Converter={StaticResource BooleanToVisibilityConverter}}">

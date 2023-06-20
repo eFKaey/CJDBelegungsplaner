@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Utility.ExtensionMethods;
 
 namespace CJDBelegungsplaner.WPF.Intermediate;
@@ -23,7 +24,7 @@ public class Week
 
     public Week(DateTime date, int bedCount)
     {
-        Number = date.GetWeekISO8601();
+        Number = ISOWeek.GetWeekOfYear(date);
         FillDates(Number);
         BedCount = bedCount;
     }

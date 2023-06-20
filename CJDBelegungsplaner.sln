@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CJDBelegungsplaner.WPF", "C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility", "Utility\Utility.csproj", "{1B9EBC1B-409C-40A3-A7DE-AAFE1A055931}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CJDBelegungsplaner.Domain.Test", "CJDBelegungsplaner.Domain.Test\CJDBelegungsplaner.Domain.Test.csproj", "{3B231308-8CD2-43F5-952D-147E448B3854}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1B9EBC1B-409C-40A3-A7DE-AAFE1A055931}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B9EBC1B-409C-40A3-A7DE-AAFE1A055931}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B9EBC1B-409C-40A3-A7DE-AAFE1A055931}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B231308-8CD2-43F5-952D-147E448B3854}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B231308-8CD2-43F5-952D-147E448B3854}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B231308-8CD2-43F5-952D-147E448B3854}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B231308-8CD2-43F5-952D-147E448B3854}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

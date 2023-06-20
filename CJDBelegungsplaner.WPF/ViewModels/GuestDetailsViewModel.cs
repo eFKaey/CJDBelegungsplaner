@@ -1,8 +1,9 @@
 ﻿using CJDBelegungsplaner.Domain.Models;
+using CJDBelegungsplaner.WPF.Services.Interfaces;
 using CJDBelegungsplaner.WPF.Stores;
-using CJDBelegungsplaner.WPF.ViewModels.Filter;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.AspNet.Identity;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
@@ -15,23 +16,23 @@ public partial class GuestDetailsViewModel : ViewModelBase
 
     private readonly GuestDetailsViewModelStore _guestDetailsViewModelStore;
     private readonly MainWindowViewModelStore _mainViewModelStore;
+    private readonly IDocumentFolderService _documentFolderService;
 
     [ObservableProperty]
     private Guest _guest;
-
-    [ObservableProperty]
-    private CollectionViewSource _reservationList = new CollectionViewSource();
 
     #endregion
 
     #region Konstruktor
 
     public GuestDetailsViewModel(
-        GuestDetailsViewModelStore guestDetailsViewModelStore, 
-        MainWindowViewModelStore mainViewModelStore)
+        GuestDetailsViewModelStore guestDetailsViewModelStore,
+        MainWindowViewModelStore mainViewModelStore,
+        IDocumentFolderService documentFolderService)
     {
         _guestDetailsViewModelStore = guestDetailsViewModelStore;
         _mainViewModelStore = mainViewModelStore;
+        _documentFolderService = documentFolderService;
 
         LoadDataAsync();
     }
@@ -45,16 +46,12 @@ public partial class GuestDetailsViewModel : ViewModelBase
             Guest = _guestDetailsViewModelStore.GuestParameter!;
         }
 
-        if (Guest is null)
-        {
-            return;
-        }
-
-        if (Guest.Reservations is not null)
-        {
-            ReservationList.Source = Guest.Reservations;
-        }
-
         _mainViewModelStore.Modal.Close();
+    }
+
+    [RelayCommand]
+    private void ShowDocuments()
+    {
+        _documentFolderService.OpenFolderInFileExplorer(Guest.Id.ToString());
     }
 }

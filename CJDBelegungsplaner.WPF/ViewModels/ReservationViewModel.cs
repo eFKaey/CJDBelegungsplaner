@@ -28,6 +28,7 @@ public partial class ReservationViewModel : ViewModelBase
     private readonly MainWindowViewModelStore _mainViewModelStore;
     private readonly Func<IServiceScope> _createServiceScope;
     private readonly DataStore _dataStore;
+    private readonly GuestDetailsViewModelStore _guestDetailsViewModelStore;
 
     private IServiceScope _serviceScope;
 
@@ -45,21 +46,19 @@ public partial class ReservationViewModel : ViewModelBase
     [ObservableProperty]
     private ObservableCollection<Class>? _classes;
 
+    private ObservableCollection<Bed>? _beds;
+
     [ObservableProperty]
     private IViewModel? _currentFormViewModel;
 
     [ObservableProperty]
     private bool _isDialogOpen;
 
-    private ReservationCellContainer? _deleteContainer;
-
     [ObservableProperty]
     private ObservableCollection<Week>? _weeks = new ObservableCollection<Week>();
 
     [ObservableProperty]
     private DataTable _dataTable = new DataTable("Weeks");
-
-    private int _bedCount = 12;
 
     #endregion
 
@@ -68,14 +67,16 @@ public partial class ReservationViewModel : ViewModelBase
     public ReservationViewModel(
         MainWindowViewModelStore mainViewModelStore,
         Func<IServiceScope> createServiceScope,
-        DataStore dataStore)
+        DataStore dataStore,
+        GuestDetailsViewModelStore guestDetailsViewModelStore)
     {
         _mainViewModelStore = mainViewModelStore;
         _createServiceScope = createServiceScope;
         _dataStore = dataStore;
+        _guestDetailsViewModelStore = guestDetailsViewModelStore;
 
-        StartDate = "27.02.2023";//DateTime.Now.ToString("d");
-        ColumnAmount = 15;
+        StartDate = DateTime.Now.ToString("d");
+        ColumnAmount = 7;
 
         _mainViewModelStore.Modal.NavigateTo(typeof(ProgressDialogViewModel));
 
@@ -106,21 +107,30 @@ public partial class ReservationViewModel : ViewModelBase
             return;
         }
 
+        _beds = await _dataStore.GetBedsAsync(true);
+
+        //_beds = _dataStore.GetBeds(true);
+
+        if (_beds is null)
+        {
+            return;
+        }
+
+        BuildTable();
+
+        _mainViewModelStore.Modal.Close();
+    }
+
+    [RelayCommand]
+    private void BuildTable()
+    {
+        DataTable = new DataTable();
+
         CreateColumns();
         FillColumns();
         AddButtons(0, DataTable.Columns.Count);
 
-        DataTable uglyWorkaround = DataTable;
-        DataTable = null;
-        DataTable = uglyWorkaround;
-
-        //System.Windows.MessageBox.Show("sdasd");
-
-        //OnPropertyChanged(nameof(DataTable));
-
-        //CollectionViewSource.GetDefaultView(DataTable).Refresh();
-
-        _mainViewModelStore.Modal.Close();
+        Refresh();
     }
 
     // ---------------------------------------------
@@ -130,19 +140,21 @@ public partial class ReservationViewModel : ViewModelBase
     {
         ShowReservationForm((form) =>
         {
-            form.SaveClassReservationCompleted = (reservation) =>
+            form.SaveClassReservationCompleted = (reservation, formWhileSaving) =>
             {
-                AppendReservation(reservation.Class, reservation);
-                CollectionViewSource.GetDefaultView(DataTable).Refresh();
+                ReservationCellContainer? container = AppendReservation(reservation.Class, reservation);
+                Refresh();
+                formWhileSaving.ExecuteClose = null;
+                ShowReservationParticipantsForm(container as ReservationCellContainerOfTModelOfTReservation<Class, ClassReservation>);
             };
-            form.SaveGuestReservationCompleted = (reservation) =>
+            form.SaveGuestReservationCompleted = (reservation, formWhileSaving) =>
             {
                 AppendReservation(reservation.Guest, reservation);
-                CollectionViewSource.GetDefaultView(DataTable).Refresh();
+                Refresh();
             };
 
             form.Begin = container.DataColumnWeek.StartDate.ToString("d");
-            form.End = container.DataColumnWeek.StartDate.AddDays(5).ToString("d");
+            form.End = container.DataColumnWeek.StartDate.AddDays(4).ToString("d");
 
             form.ShowClassReservationFormCommand.Execute(null);
         });
@@ -155,7 +167,7 @@ public partial class ReservationViewModel : ViewModelBase
         {
             form.EditReservation = container.Reservation;
 
-            form.SaveClassReservationCompleted = (reservation) =>
+            form.SaveClassReservationCompleted = (reservation, formWhileSaving) =>
             {
                 RemoveContainerFormDataTable(container);
                 AppendReservation(reservation.Class, reservation);
@@ -179,7 +191,7 @@ public partial class ReservationViewModel : ViewModelBase
         {
             form.EditReservation = container.Reservation;
 
-            form.SaveGuestReservationCompleted = (reservation) =>
+            form.SaveGuestReservationCompleted = (reservation, formWhileSaving) =>
             {
                 RemoveContainerFormDataTable(container);
                 AppendReservation(reservation.Guest, reservation);
@@ -212,7 +224,7 @@ public partial class ReservationViewModel : ViewModelBase
         form.DeleteCompleted = () =>
         {
             RemoveContainerFormDataTable(container);
-            CollectionViewSource.GetDefaultView(DataTable).Refresh();
+            Refresh();
         };
         form.ExecuteClose = CloseDialog;
 
@@ -236,7 +248,7 @@ public partial class ReservationViewModel : ViewModelBase
         form.DeleteCompleted = () =>
         {
             RemoveContainerFormDataTable(container);
-            CollectionViewSource.GetDefaultView(DataTable).Refresh();
+            Refresh();
         };
         form.ExecuteClose = CloseDialog;
 
@@ -245,7 +257,111 @@ public partial class ReservationViewModel : ViewModelBase
         OpenDialog();
     }
 
+    [RelayCommand]
+    private void ShowReservationParticipantsForm(ReservationCellContainerOfTModelOfTReservation<Class, ClassReservation> container)
+    {
+        if (container is null)
+        {
+            throw new ArgumentNullException(nameof(container));
+        }
+
+        _serviceScope = _createServiceScope();
+        var form = (ClassReservationParticipantsInputFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(ClassReservationParticipantsInputFormViewModel));
+        form.EditEntity = container.Reservation;
+        form.SaveCompleted = (reservation, formWhileSaving) =>
+        {
+            Refresh();
+        };
+        form.ExecuteClose = CloseDialog;
+
+        CurrentFormViewModel = form;
+
+        OpenDialog();
+    }
+
+    [RelayCommand]
+    private void ShowClassForm(ReservationCellContainerOfTModelOfTReservation<Class, ClassReservation> container)
+    {
+        _serviceScope = _createServiceScope();
+        var form = (ClassInputFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(ClassInputFormViewModel));
+        form.EditEntity = container.Entity;
+
+        form.SaveCompleted = (@class, formWhileSaving) =>
+        {
+            RemoveContainerFormDataTable(container);
+            AppendReservation(@class, container.Reservation);
+            CollectionViewSource.GetDefaultView(DataTable).Refresh();
+        };
+
+        form.ExecuteClose = CloseDialog;
+
+        CurrentFormViewModel = form;
+
+        OpenDialog();
+    }
+
+    [RelayCommand]
+    private void ShowGuestForm(ReservationCellContainerOfTModelOfTReservation<Guest, GuestReservation> container)
+    {
+        _serviceScope = _createServiceScope();
+        var form = (GuestInputFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(GuestInputFormViewModel));
+        form.EditEntity = container.Entity;
+        form.IsClassInputEnabled = false;
+
+        form.SaveCompleted = (guest, formWhileSaving) =>
+        {
+            RemoveContainerFormDataTable(container);
+            AppendReservation(guest, container.Reservation);
+            CollectionViewSource.GetDefaultView(DataTable).Refresh();
+        };
+
+        form.ExecuteClose = CloseDialog;
+
+        CurrentFormViewModel = form;
+
+        OpenDialog();
+    }
+
+    [RelayCommand]
+    private void ShowGuestDetails(Guest guest)
+    {
+        _guestDetailsViewModelStore.GuestParameter = guest;
+        _mainViewModelStore.Sub.NavigateTo(typeof(GuestDetailsViewModel));
+    }
+
     // ---------------------------------------------
+
+    private void Refresh()
+    {
+        CalculateBedCount();
+        //CollectionViewSource.GetDefaultView(DataTable).Refresh();
+        var temp = DataTable;
+        DataTable = null;
+        DataTable = temp;
+    }
+
+    private void CalculateBedCount()
+    {
+        DataColumnWeek? dataColumn;
+        object? cell;
+        ReservationCellContainer? container;
+        for (int c = 0; c < DataTable.Columns.Count; c++)
+        {
+            dataColumn = DataTable.Columns[c] as DataColumnWeek;
+            dataColumn.BedCount = 0;
+
+            for (int r = 0; r < DataTable.Rows.Count; r++)
+            {
+                cell = DataTable.Rows[r][c];
+                if ((container = cell as ReservationCellContainer) is null)
+                {
+                    continue;
+                }
+                dataColumn.BedCount += container.Reservation.ParticipantsCount;
+            }
+
+        }
+    }
 
     private void ShowReservationForm(Action<ReservationInputFormViewModel> action)
     {
@@ -262,7 +378,7 @@ public partial class ReservationViewModel : ViewModelBase
         OpenDialog();
     }
 
-    private void AppendReservation<TModel, TReservation>(TModel entity, TReservation reservation)
+    private ReservationCellContainer? AppendReservation<TModel, TReservation>(TModel entity, TReservation reservation)
             where TModel : EntityObject, IModelWithReservation<TReservation>
             where TReservation : Reservation
     {
@@ -271,8 +387,9 @@ public partial class ReservationViewModel : ViewModelBase
         (int colStart, int colEnd) = GetColumns(startDate, endDate, reservation);
         int row = FindFreeRow(colStart, colEnd);
         CreateRowsUpTo(row + 1);
-        AddContainer(entity, reservation, colStart, colEnd, row);
+        ReservationCellContainer? container = AddContainer(entity, reservation, colStart, colEnd, row);
         AddButtons(colStart, colEnd + 1);
+        return container;
     }
 
     private void OpenDialog()
@@ -285,6 +402,7 @@ public partial class ReservationViewModel : ViewModelBase
     private void CloseDialog()
     {
         IsDialogOpen = false;
+        CurrentFormViewModel = null;
         _serviceScope?.Dispose();
         _mainViewModelStore.BlockView(false);
     }
@@ -303,11 +421,6 @@ public partial class ReservationViewModel : ViewModelBase
 
     private void CreateColumns()
     {
-        // TODO: _bedCount dynamisch machen.
-        // Der user hat eine Einstellungsseite, auf der er angeben kann, ab welchem datum sich die Belegungszahl ändert.
-        // Dafür wird natülcih eine Table benötigt.
-        // Hier wird auf die Info zugegriffen.
-
         DateTime date = DateTime.Parse(StartDate);
         int amount = ColumnAmount - Weeks!.Count;
         DataColumn column;
@@ -317,13 +430,39 @@ public partial class ReservationViewModel : ViewModelBase
             column = new DataColumnWeek(
                 number, 
                 typeof(CellContainer), 
-                date, 
-                _bedCount);
+                date,
+                GetAmountOfFreeBedsOfWeekOf(date));
 
             DataTable.Columns.Add(column);
 
             date = date.AddDays(7);
         }
+    }
+
+    private int GetAmountOfFreeBedsOfWeekOf(DateTime date)
+    {
+        var weekStart = date.StartOfWeek();
+        Interval weekInterval = new Occupancy()
+        {
+            Begin = weekStart,
+            End = weekStart.AddDays(7),
+        };
+
+        int amount = _beds.Count;
+
+        for (int b = 0; b < _beds.Count; b++)
+        {
+            foreach (Interval interval in _beds[b].Occupancies)
+            {
+                if (weekInterval.IsOverlappingWith(interval))
+                {
+                    amount--;
+                    break;
+                }
+            }
+        }
+
+        return amount;
     }
 
     private void FillColumns()
@@ -370,24 +509,82 @@ public partial class ReservationViewModel : ViewModelBase
     private (int colStart, int colEnd) GetColumns<TReservation>(DateTime startDate, DateTime endDate, TReservation reservation)
         where TReservation : Reservation
     {
+        startDate = startDate.StartOfWeek();
+        endDate = endDate.StartOfWeek();
+        DateTime rBegin = reservation.Begin.StartOfWeek();
+        DateTime rEnd = reservation.End.StartOfWeek();
+
         int colStart = -1;
         int colEnd = -1;
 
-        if (startDate <= reservation.Begin && reservation.Begin <= endDate)
+        if (startDate <= rBegin && rBegin <= endDate
+            || startDate <= rEnd && rEnd <= endDate)
         {
-            colStart = reservation.Begin.GetWeekISO8601() - startDate.GetWeekISO8601();
 
-            if (reservation.End <= endDate)
+            //
+            // colStart (🡇)
+            //
+            if (rBegin <= startDate)
             {
-                colEnd = colStart + reservation.End.GetWeekISO8601() - reservation.Begin.GetWeekISO8601();
+                //        startDate             endDate         (of Display)
+                // ----------|--------------------|----------
+                //
+                //  rBegin         rEnd                         (of Reservation)
+                //    |------🡇-------|
+                //
+                //  rBegin                               rEnd   (of Reservation)
+                //    |------🡇----------------------------|
+                colStart = 0;
             }
             else
             {
-                colEnd = colStart + endDate.GetWeekISO8601() - startDate.GetWeekISO8601();
+                //        startDate             endDate         (of Display)
+                // ----------|--------------------|----------
+                //
+                //            rBegin         rEnd               (of Reservation)
+                //              🡇--------------|
+                //
+                //            rBegin                   rEnd     (of Reservation)
+                //              🡇------------------------|
+                colStart = Diff(rBegin, startDate);
+            }
+
+            //
+            // colEnd (🡇)
+            //
+            if (endDate <= rEnd)
+            {
+                //        startDate             endDate         (of Display)
+                // ----------|--------------------|----------
+                //
+                //  rBegin                               rEnd   (of Reservation)
+                //    |---------------------------🡇-------|
+                //
+                //            rBegin                    rEnd    (of Reservation)
+                //              |-----------------🡇-------|
+                colEnd = Diff(endDate, startDate) - 1;
+            }
+            else
+            {
+
+                //        startDate             endDate         (of Display)
+                // ----------|--------------------|----------
+                //
+                //  rBegin         rEnd                         (of Reservation)
+                //    |--------------🡇
+                //
+                //            rBegin         rEnd               (of Reservation)
+                //              |--------------🡇
+                colEnd = Diff(rEnd, startDate);
             }
         }
 
         return (colStart, colEnd);
+
+        int Diff(DateTime bigger, DateTime smaller)
+        {
+            return (int)((bigger - smaller).Days / 7);
+        }
     }
 
     private int FindFreeRow(int colStart, int colEnd)
@@ -434,7 +631,7 @@ public partial class ReservationViewModel : ViewModelBase
         }
     }
 
-    private void AddContainer<TModel, TReservation>(TModel entity, TReservation reservation, int colStart, int colEnd, int row)
+    private ReservationCellContainer? AddContainer<TModel, TReservation>(TModel entity, TReservation reservation, int colStart, int colEnd, int row)
             where TModel : EntityObject, IModelWithReservation<TReservation>
             where TReservation : Reservation
     {
@@ -447,8 +644,9 @@ public partial class ReservationViewModel : ViewModelBase
 
             container = new ReservationCellContainerOfTModelOfTReservation<TModel, TReservation>(dataColumn, row, column, entity, reservation, container);
 
+            container.ViewModel = this;
+
             DataTable.Rows[row][column] = container;
-            dataColumn.BedCount--;
 
             if (dataColumn.ButtonRow > row)
             {
@@ -462,6 +660,8 @@ public partial class ReservationViewModel : ViewModelBase
 
             dataColumn.ButtonRow = row + 1;
         }
+
+        return container;
     }
 
     private void AddButtons(int startCol, int colCount)

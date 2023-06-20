@@ -41,9 +41,6 @@ public partial class UserListViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isDialogOpen;
 
-    /// <summary>
-    /// Zwischenpeicher für das Löschen eines Benutzers.
-    /// </summary>
     private User? _deleteUser = null;
 
     #endregion
@@ -95,7 +92,7 @@ public partial class UserListViewModel : ViewModelBase
 
         if (form.IsNewEntity)
         {
-            form.SaveCompleted = (user) => Users.Add(user);
+            form.SaveCompleted = (user, formWhileSaving) => Users.Add(user);
         }
         else
         {
@@ -108,7 +105,7 @@ public partial class UserListViewModel : ViewModelBase
 
             form.IsPasswordEnabled = false;
             form.ShowCheckBoxForPasswordTextBoxes = true;
-            form.SaveCompleted = (user) => UserList.View.Refresh();
+            form.SaveCompleted = (user, formWhileSaving) => UserList.View.Refresh();
         }
 
         form.ExecuteClose = CloseDialog;
@@ -129,6 +126,12 @@ public partial class UserListViewModel : ViewModelBase
         if ( ! _accountService.HasHigherPermissionFor(deleteUser.Role))
         {
             _dialogService.ShowMessageDialog("Keine Rechte.", "So nich...", MessageBoxImage.Warning);
+            return;
+        }
+
+        if (_accountService.User == deleteUser)
+        {
+            _dialogService.ShowMessageDialog("Du kannst dich nicht selber löschen!", "So nich...", MessageBoxImage.Warning);
             return;
         }
 

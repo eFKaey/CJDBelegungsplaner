@@ -1,0 +1,114 @@
+﻿<UserControl
+    x:Class="CJDBelegungsplaner.WPF.Views.InputForms.BedInputFormView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:CJDBelegungsplaner.WPF.Views.InputForms"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <Grid Margin="15,10,15,10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <Style TargetType="StackPanel">
+                <Setter Property="Orientation" Value="Vertical" />
+                <Setter Property="Margin" Value="10,10,10,10" />
+            </Style>
+            <Style
+                x:Key="LocalKey_TextBoxStyle"
+                BasedOn="{StaticResource MaterialDesignFloatingHintTextBox}"
+                TargetType="TextBox">
+                <Setter Property="Margin" Value="0,0,0,15" />
+                <Setter Property="IsEnabled" Value="{Binding IsFormEnabled}" />
+            </Style>
+            <Style
+                x:Key="LocalKey_TextBoxMultiline"
+                BasedOn="{StaticResource MaterialDesignFilledTextBox}"
+                TargetType="TextBox">
+                <Setter Property="Margin" Value="0,15,0,15" />
+                <Setter Property="IsEnabled" Value="{Binding IsFormEnabled}" />
+            </Style>
+            <Style
+                x:Key="LocalKey_Button"
+                BasedOn="{StaticResource MaterialDesignRaisedSecondaryButton}"
+                TargetType="Button">
+                <Setter Property="Width" Value="150" />
+            </Style>
+        </Grid.Resources>
+
+        <TextBlock
+            Grid.Row="0"
+            Margin="0,0,0,10"
+            HorizontalAlignment="Center"
+            FontSize="20">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Text" Value="Bett bearbeiten" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsNewEntity}" Value="True">
+                            <Setter Property="Text" Value="Bett anlegen" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <StackPanel Grid.Row="1">
+
+            <TextBox
+                materialDesign:HintAssist.Hint="Name"
+                Style="{StaticResource LocalKey_TextBoxStyle}"
+                TabIndex="1"
+                Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+            <TextBox
+                Grid.Row="4"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Height="70"
+                VerticalAlignment="Stretch"
+                materialDesign:HintAssist.Hint="Information"
+                AcceptsReturn="True"
+                SpellCheck.IsEnabled="True"
+                Style="{StaticResource LocalKey_TextBoxMultiline}"
+                TabIndex="6"
+                Text="{Binding Information, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                TextWrapping="Wrap"
+                VerticalScrollBarVisibility="Auto" />
+
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Button
+                Grid.Column="0"
+                Margin="10,0,5,5"
+                HorizontalAlignment="Left"
+                materialDesign:ButtonProgressAssist.IsIndeterminate="True"
+                materialDesign:ButtonProgressAssist.IsIndicatorVisible="{Binding IsFormDisabled}"
+                materialDesign:ButtonProgressAssist.Value="-1"
+                Command="{Binding SaveCommand}"
+                Content="Speichern"
+                Style="{StaticResource LocalKey_Button}"
+                TabIndex="4" />
+            <Button
+                Grid.Column="1"
+                Margin="0,0,10,5"
+                HorizontalAlignment="Right"
+                Command="{Binding CloseCommand}"
+                Content="Abbrechen"
+                IsEnabled="{Binding IsFormEnabled}"
+                Style="{StaticResource LocalKey_Button}"
+                TabIndex="5" />
+        </Grid>
+    </Grid>
+</UserControl>

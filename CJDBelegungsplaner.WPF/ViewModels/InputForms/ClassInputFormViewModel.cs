@@ -25,7 +25,7 @@ public partial class ClassInputFormViewModel : InputFormBase<Class>
     private string? _description = string.Empty;
 
     [ObservableProperty]
-    private Color _color = Color.FromRgb(23, 123, 234);
+    private Color _color = Color.FromRgb(42, 178, 219);
 
     #endregion
 

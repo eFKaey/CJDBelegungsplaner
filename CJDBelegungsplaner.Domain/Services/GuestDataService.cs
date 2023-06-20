@@ -35,6 +35,7 @@ public class GuestDataService : IGuestDataService
             .Include(g => g.Company)
             .Include(g => g.Reservations)
             .Include(g => g.ClassReservations)
+            .Include(g => g.LogEntries)
             .FirstOrDefaultAsync(g => g.Id == id));
     }
 
@@ -46,6 +47,7 @@ public class GuestDataService : IGuestDataService
             .Include(g => g.Company)
             .Include(g => g.Reservations)
             .Include(g => g.ClassReservations)
+            .Include(g => g.LogEntries)
             .OrderBy(g => g.FirstName)
             .ToListAsync());
     }
@@ -57,6 +59,7 @@ public class GuestDataService : IGuestDataService
             .Where(g => g.Class == null)
             .Include(g => g.Company)
             .Include(g => g.Reservations)
+            .Include(g => g.LogEntries)
             .OrderBy(g => g.FirstName)
             .ToListAsync());
     }
@@ -70,6 +73,7 @@ public class GuestDataService : IGuestDataService
             .Include(g => g.Company)
             .Include(g => g.Reservations)
             .Include(g => g.ClassReservations)
+            .Include(g => g.LogEntries)
             .OrderBy(g => g.FirstName)
             .ToListAsync());
     }

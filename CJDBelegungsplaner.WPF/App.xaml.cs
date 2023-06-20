@@ -11,7 +11,6 @@ using CJDBelegungsplaner.WPF.Services.Interfaces;
 using CJDBelegungsplaner.WPF.Stores;
 using CJDBelegungsplaner.WPF.ViewModels;
 using CJDBelegungsplaner.WPF.ViewModels.DeleteForms;
-using CJDBelegungsplaner.WPF.ViewModels.Forms;
 using CJDBelegungsplaner.WPF.ViewModels.InputForms;
 using Microsoft.AspNet.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +99,7 @@ public partial class App : Application
                 services.AddSingleton<IGenericDataService<Class>, GenericDataService<Class>>();
                 services.AddSingleton<IGenericDataService<Guest>, GenericDataService<Guest>>();
                 services.AddSingleton<IGenericDataService<Company>, GenericDataService<Company>>();
+                services.AddSingleton<IGenericDataService<Bed>, GenericDataService<Bed>>();
                 services.AddSingleton<IUserDataService, UserDataService>();
                 services.AddSingleton<ILogEntryDataService, LogEntryDataService>();
                 services.AddSingleton<IClassDataService, ClassDataService>();
@@ -112,6 +112,9 @@ public partial class App : Application
                 services.AddSingleton<IDataConnectionService, DataConnectionService>();
                 services.AddSingleton<IDataHelperSevice, DataHelperSevice>();
                 services.AddSingleton<ICompanyDataService, CompanyDataService>();
+                services.AddSingleton<IBedDataService, BedDataService>();
+                services.AddSingleton<IDocumentFolderService, DocumentFolderService>();
+                services.AddSingleton<IDatabaseInitializerService, DatabaseInitializerService>();
 
                 /// Stores
                 /// 
@@ -173,7 +176,6 @@ public partial class App : Application
                 services.AddTransient<ClassListViewModel>();
                 services.AddTransient<GuestListViewModel>();
                 services.AddTransient<ProgressDialogViewModel>();
-                services.AddTransient<DeleteDialogViewModel>();
                 services.AddTransient<CompanyListViewModel>();
                 services.AddTransient<MessageDialogViewModel>();
                 services.AddTransient<GuestDetailsViewModel>();
@@ -188,6 +190,9 @@ public partial class App : Application
                 services.AddTransient<GuestReservationInputFormViewModel>();
                 services.AddTransient<ClassReservationInputFormViewModel>();
                 services.AddTransient<ReservationInputFormViewModel>();
+                services.AddTransient<ClassReservationParticipantsInputFormViewModel>();
+                services.AddTransient<BedInputFormViewModel>();
+                services.AddTransient<OccupancyInputFormViewModel>();
                 ///
                 /// Delete Forms ViewModels
                 ///
@@ -196,6 +201,9 @@ public partial class App : Application
                 services.AddTransient<ClassReservationDeleteFormViewModel>();
                 services.AddTransient<GuestReservationDeleteFormViewModel>();
                 services.AddTransient<UserDeleteFormViewModel>();
+                services.AddTransient<CompanyDeleteFormViewModel>();
+                services.AddTransient<BedDeleteFormViewModel>();
+                services.AddTransient<OccupancyDeleteFormViewModel>();
             });
         
         try

@@ -51,63 +51,55 @@
         <StackPanel Grid.Row="1" Grid.Column="0">
 
             <TextBox
-                materialDesign:HintAssist.HelperText="{Binding Form.NameErrorMessage}"
                 materialDesign:HintAssist.Hint="Name"
                 Style="{StaticResource LocalKey_TextBoxStyle}"
                 TabIndex="1"
-                Text="{Binding Form.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <TextBox
-                materialDesign:HintAssist.HelperText="{Binding Form.PhoneNumberErrorMessage}"
                 materialDesign:HintAssist.Hint="Telefonnummer"
                 Style="{StaticResource LocalKey_TextBoxStyle}"
                 TabIndex="3"
-                Text="{Binding Form.PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <TextBox
-                materialDesign:HintAssist.HelperText="{Binding Form.StreetErrorMessage}"
                 materialDesign:HintAssist.Hint="Straße"
                 Style="{StaticResource LocalKey_TextBoxStyle}"
                 TabIndex="5"
-                Text="{Binding Form.Street, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding Street, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <TextBox
-                materialDesign:HintAssist.HelperText="{Binding Form.PostCodeErrorMessage}"
                 materialDesign:HintAssist.Hint="PLZ"
                 Style="{StaticResource LocalKey_TextBoxStyle}"
                 TabIndex="7"
-                Text="{Binding Form.PostCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding PostCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
         </StackPanel>
         <StackPanel Grid.Row="1" Grid.Column="1">
 
             <TextBox
-                materialDesign:HintAssist.HelperText="{Binding Form.DescriptionErrorMessage}"
                 materialDesign:HintAssist.Hint="Beschreibung"
                 Style="{StaticResource LocalKey_TextBoxStyle}"
                 TabIndex="2"
-                Text="{Binding Form.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <TextBox
-                materialDesign:HintAssist.HelperText="{Binding Form.EmailErrorMessage}"
                 materialDesign:HintAssist.Hint="E-Mail Adresse"
                 Style="{StaticResource LocalKey_TextBoxStyle}"
                 TabIndex="4"
-                Text="{Binding Form.Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding Email, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <TextBox
-                materialDesign:HintAssist.HelperText="{Binding Form.HouseNumberErrorMessage}"
                 materialDesign:HintAssist.Hint="Hausnummer"
                 Style="{StaticResource LocalKey_TextBoxStyle}"
                 TabIndex="6"
-                Text="{Binding Form.HouseNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding HouseNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <TextBox
-                materialDesign:HintAssist.HelperText="{Binding Form.CityErrorMessage}"
                 materialDesign:HintAssist.Hint="Stadt"
                 Style="{StaticResource LocalKey_TextBoxStyle}"
                 TabIndex="8"
-                Text="{Binding Form.City, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding City, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
         </StackPanel>
 
@@ -124,7 +116,7 @@
                 Width="150"
                 Margin="10,0,5,5"
                 HorizontalAlignment="Left"
-                Command="{Binding SaveCompanyCommand}"
+                Command="{Binding SaveCommand}"
                 Content="Speichern"
                 TabIndex="11" />
             <Button
@@ -132,7 +124,7 @@
                 Width="150"
                 Margin="0,0,10,5"
                 HorizontalAlignment="Right"
-                Command="{Binding CloseDialogCommand}"
+                Command="{Binding CloseCommand}"
                 Content="Abbrechen"
                 TabIndex="12" />
         </Grid>

@@ -14,6 +14,8 @@ public class Address
     public string StreetAndHouseNumber => Street + " " + HouseNumber; 
     public string PostCode { get; set; }
     public string City { get; set; }
+    [NotMapped]
+    public string PostCodeAndCity => PostCode + " " + City;
 
     public Address Clone() => new Address
     {

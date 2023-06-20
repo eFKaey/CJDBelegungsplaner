@@ -4,18 +4,40 @@ namespace CJDBelegungsplaner.Domain.Models;
 
 #nullable disable
 
-public class GuestReservation : Reservation
+public class GuestReservation : Reservation<GuestReservation>
 {
     [Required]
     public Guest Guest { get; set; }
 
-    public GuestReservation Clone() => new GuestReservation
+    public override int ParticipantsCount => 1;
+
+    public override EntityObject Entity { get => Guest; }
+
+    public override GuestReservation Clone() => new GuestReservation
     {
-        Guest = this.Guest
+        Guest = this.Guest,
+        Begin = this.Begin,
+        End = this.End,
+        Created = this.Created
     };
-    public void CopyValuesTo(GuestReservation entity)
+    public override void CopyValuesTo(GuestReservation reservation)
     {
-        entity.Guest = Guest;
+        reservation.Guest = Guest;
+        reservation.Begin = Begin;
+        reservation.End = End;
+        reservation.Created = Created;
+    }
+
+    public override void CopyValuesTo(Reservation entity)
+    {
+        var reservation = entity as GuestReservation;
+
+        if (reservation is null)
+        {
+            throw new ArgumentNullException(nameof(entity), $"The given Parameter have to be of type {nameof(GuestReservation)}!");
+        }
+
+        CopyValuesTo(reservation);
     }
 }
 

@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
 using CJDBelegungsplaner.WPF.ViewModels.Filter;
 using CJDBelegungsplaner.WPF.ViewModels.DeleteForms;
+using CJDBelegungsplaner.WPF.Services.Interfaces;
 
 namespace CJDBelegungsplaner.WPF.ViewModels;
 
@@ -20,14 +21,6 @@ namespace CJDBelegungsplaner.WPF.ViewModels;
 public partial class ClassListViewModel : ViewModelBase
 {
     #region Properties/Fields
-
-    private readonly GuestListViewModelStore _guestListViewModelStore;
-    private readonly MainWindowViewModelStore _mainViewModelStore;
-    private readonly Func<IServiceScope> _createServiceScope;
-    private readonly ClassListViewModelStore _classListViewModelStore;
-    private readonly DataStore _dataStore;
-
-    private IServiceScope _serviceScope;
 
     [ObservableProperty]
     private ObservableCollection<Class>? _classes;
@@ -53,18 +46,32 @@ public partial class ClassListViewModel : ViewModelBase
 
     #region Konstruktor
 
+    private readonly GuestListViewModelStore _guestListViewModelStore;
+    private readonly MainWindowViewModelStore _mainViewModelStore;
+    private readonly Func<IServiceScope> _createServiceScope;
+    private readonly ClassListViewModelStore _classListViewModelStore;
+    private readonly DataStore _dataStore;
+    private readonly IDocumentFolderService _documentFolderService;
+    private readonly IDialogService _dialogService;
+
+    private IServiceScope _serviceScope;
+
     public ClassListViewModel(
         GuestListViewModelStore guestListViewModelStore,
         MainWindowViewModelStore mainViewModelStore,
         Func<IServiceScope> createServiceScope,
         ClassListViewModelStore classListViewModelStore,
-        DataStore dataStore)
+        DataStore dataStore,
+        IDocumentFolderService documentFolderService,
+        IDialogService dialogService)
     {
         _guestListViewModelStore = guestListViewModelStore;
         _mainViewModelStore = mainViewModelStore;
         _createServiceScope = createServiceScope;
         _classListViewModelStore = classListViewModelStore;
         _dataStore = dataStore;
+        _documentFolderService = documentFolderService;
+        _dialogService = dialogService;
 
         _mainViewModelStore.Modal.NavigateTo(typeof(ProgressDialogViewModel));
 
@@ -102,11 +109,11 @@ public partial class ClassListViewModel : ViewModelBase
 
         if (form.IsNewEntity)
         {
-            form.SaveCompleted = (@class) => Classes.Add(@class);
+            form.SaveCompleted = (@class, formWhileSaving) => Classes.Add(@class);
         }
         else
         {
-            form.SaveCompleted = (@class) => ClassList.View.Refresh();
+            form.SaveCompleted = (@class, formWhileSaving) => ClassList.View.Refresh();
         }
 
         form.ExecuteClose = CloseDialog;
@@ -126,14 +133,53 @@ public partial class ClassListViewModel : ViewModelBase
 
         _serviceScope = _createServiceScope();
         var form = (ClassDeleteFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(ClassDeleteFormViewModel));
-        form.DeleteMessage = "Möchten sie den Gast und alle seine Daten wirklich löschen?";
+        form.DeleteMessage = $"Möchten sie die Klasse und alle zugeordneten Gäste (Schüler) und alle Daten (einschließlich der Dokumente) wirklich löschen?\nName: {deleteClass.Name}\nTeilnehmer: {deleteClass.GuestCount}";
         form.DeleteEntity = deleteClass;
-        form.DeleteCompleted = () => Classes!.Remove(deleteClass);
+        form.DeleteCompleted = () =>
+        {
+            DeleteGuestDocumentFolders(deleteClass);
+            Classes!.Remove(deleteClass);
+        }; 
         form.ExecuteClose = CloseDialog;
 
         CurrentFormViewModel = form;
 
         OpenDialog();
+    }
+
+    private void DeleteGuestDocumentFolders(Class @class)
+    {
+        foreach (Guest guest in @class.Guests)
+        {
+            string? errorMsg = _documentFolderService.DeleteFolder(guest.Id.ToString());
+            if (errorMsg is not null)
+            {
+                string postfix = "erfolgreich\n";
+                string report = "";
+
+                foreach (Guest g in @class.Guests)
+                {
+                    report += $"Doku-Ordner '{g.Id}' von '{g.FirstName}' - ";
+
+                    if (guest ==  g)
+                    {
+                        report += "fehlgeschlagen\n";
+                        postfix = "nicht ausgeführt\n";
+                        continue;
+                    }
+
+                    report += postfix;
+                }
+
+                _dialogService.ShowMessageBox(
+                    $"Fehler beim Löschen der Dokumenten-Ordner.\nBitte machen Sie ein Screenshot von dieser Meldung!\n\n{report}\n\n{errorMsg}",
+                    "Fehler",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                break;
+            }
+        }
     }
 
     private void OpenDialog()

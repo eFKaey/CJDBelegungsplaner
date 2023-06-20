@@ -17,6 +17,30 @@ namespace CJDBelegungsplaner.Domain.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.1");
 
+            modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Bed", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Information")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Beds");
+                });
+
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Class", b =>
                 {
                     b.Property<int>("Id")
@@ -41,7 +65,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Classes", (string)null);
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.ClassReservation", b =>
@@ -66,7 +90,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
 
                     b.HasIndex("ClassId");
 
-                    b.ToTable("ClassReservations", (string)null);
+                    b.ToTable("ClassReservations");
                 });
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Company", b =>
@@ -96,7 +120,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Guest", b =>
@@ -140,7 +164,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.ToTable("Guests", (string)null);
+                    b.ToTable("Guests");
                 });
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.GuestReservation", b =>
@@ -165,7 +189,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
 
                     b.HasIndex("GuestId");
 
-                    b.ToTable("GuestReservations", (string)null);
+                    b.ToTable("GuestReservations");
                 });
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.LogEntry", b =>
@@ -181,14 +205,88 @@ namespace CJDBelegungsplaner.Domain.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("GuestId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("UserId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("GuestId");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("LogEntries", (string)null);
+                    b.ToTable("LogEntries");
+                });
+
+            modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Occupancy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Argb")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BedId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Begin")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("End")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("GuestId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Information")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ReservationId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BedId");
+
+                    b.HasIndex("GuestId");
+
+                    b.HasIndex("ReservationId");
+
+                    b.ToTable("Occupancies");
+                });
+
+            modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Unavailability", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("BedId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Begin")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Cause")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("End")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BedId");
+
+                    b.ToTable("Unavailabilities");
                 });
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.User", b =>
@@ -225,7 +323,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ClassReservationGuest", b =>
@@ -240,7 +338,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
 
                     b.HasIndex("GuestsId");
 
-                    b.ToTable("ClassReservationGuest", (string)null);
+                    b.ToTable("ClassReservationGuest");
                 });
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.ClassReservation", b =>
@@ -256,7 +354,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Company", b =>
                 {
-                    b.OwnsOne("CJDBelegungsplaner.Domain.Models.Company.Address#CJDBelegungsplaner.Domain.Models.Address", "Address", b1 =>
+                    b.OwnsOne("CJDBelegungsplaner.Domain.Models.Address", "Address", b1 =>
                         {
                             b1.Property<int>("CompanyId")
                                 .HasColumnType("INTEGER");
@@ -275,7 +373,7 @@ namespace CJDBelegungsplaner.Domain.Migrations
 
                             b1.HasKey("CompanyId");
 
-                            b1.ToTable("Companies", (string)null);
+                            b1.ToTable("Companies");
 
                             b1.WithOwner()
                                 .HasForeignKey("CompanyId");
@@ -288,13 +386,14 @@ namespace CJDBelegungsplaner.Domain.Migrations
                 {
                     b.HasOne("CJDBelegungsplaner.Domain.Models.Class", "Class")
                         .WithMany("Guests")
-                        .HasForeignKey("ClassId");
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("CJDBelegungsplaner.Domain.Models.Company", "Company")
-                        .WithMany()
+                        .WithMany("Guests")
                         .HasForeignKey("CompanyId");
 
-                    b.OwnsOne("CJDBelegungsplaner.Domain.Models.Guest.Address#CJDBelegungsplaner.Domain.Models.Address", "Address", b1 =>
+                    b.OwnsOne("CJDBelegungsplaner.Domain.Models.Address", "Address", b1 =>
                         {
                             b1.Property<int>("GuestId")
                                 .HasColumnType("INTEGER");
@@ -313,13 +412,14 @@ namespace CJDBelegungsplaner.Domain.Migrations
 
                             b1.HasKey("GuestId");
 
-                            b1.ToTable("Guests", (string)null);
+                            b1.ToTable("Guests");
 
                             b1.WithOwner()
                                 .HasForeignKey("GuestId");
                         });
 
-                    b.Navigation("Address");
+                    b.Navigation("Address")
+                        .IsRequired();
 
                     b.Navigation("Class");
 
@@ -339,13 +439,54 @@ namespace CJDBelegungsplaner.Domain.Migrations
 
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.LogEntry", b =>
                 {
+                    b.HasOne("CJDBelegungsplaner.Domain.Models.Guest", "Guest")
+                        .WithMany("LogEntries")
+                        .HasForeignKey("GuestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("CJDBelegungsplaner.Domain.Models.User", "User")
                         .WithMany("LogEntries")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Guest");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Occupancy", b =>
+                {
+                    b.HasOne("CJDBelegungsplaner.Domain.Models.Bed", "Bed")
+                        .WithMany("Occupancies")
+                        .HasForeignKey("BedId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.HasOne("CJDBelegungsplaner.Domain.Models.Guest", "Guest")
+                        .WithMany("Occupancies")
+                        .HasForeignKey("GuestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CJDBelegungsplaner.Domain.Models.GuestReservation", "Reservation")
+                        .WithMany()
+                        .HasForeignKey("ReservationId");
+
+                    b.Navigation("Bed");
+
+                    b.Navigation("Guest");
+
+                    b.Navigation("Reservation");
+                });
+
+            modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Unavailability", b =>
+                {
+                    b.HasOne("CJDBelegungsplaner.Domain.Models.Bed", "Bed")
+                        .WithMany("Unavailabilities")
+                        .HasForeignKey("BedId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bed");
                 });
 
             modelBuilder.Entity("ClassReservationGuest", b =>
@@ -363,6 +504,13 @@ namespace CJDBelegungsplaner.Domain.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Bed", b =>
+                {
+                    b.Navigation("Occupancies");
+
+                    b.Navigation("Unavailabilities");
+                });
+
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Class", b =>
                 {
                     b.Navigation("Guests");
@@ -370,8 +518,17 @@ namespace CJDBelegungsplaner.Domain.Migrations
                     b.Navigation("Reservations");
                 });
 
+            modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Company", b =>
+                {
+                    b.Navigation("Guests");
+                });
+
             modelBuilder.Entity("CJDBelegungsplaner.Domain.Models.Guest", b =>
                 {
+                    b.Navigation("LogEntries");
+
+                    b.Navigation("Occupancies");
+
                     b.Navigation("Reservations");
                 });
 

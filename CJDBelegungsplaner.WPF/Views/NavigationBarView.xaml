@@ -304,13 +304,6 @@
                     </Border>
                 </materialDesign:PopupBox.ToggleContent>
             </materialDesign:PopupBox>
-            <materialDesign:DialogHost
-                VerticalAlignment="Center"
-                CloseOnClickAway="True"
-                DialogContent="{Binding PasswordChangeDialogContent}"
-                DialogTheme="Inherit"
-                IsOpen="{Binding IsPasswordChangeDialogOpen}"
-                Placement="Center" />
 
             <!--  RadioButton Benutzer  -->
             <RadioButton

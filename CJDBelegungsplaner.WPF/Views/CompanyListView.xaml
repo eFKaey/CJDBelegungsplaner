@@ -23,11 +23,13 @@
     -->
 
     <materialDesign:DialogHost
-        CloseOnClickAway="True"
-        DialogContent="{Binding DialogContent}"
+        CloseOnClickAway="False"
         DialogTheme="Inherit"
         IsOpen="{Binding IsDialogOpen}"
         Placement="Center">
+        <materialDesign:DialogHost.DialogContent>
+            <ContentControl Content="{Binding CurrentFormViewModel}" />
+        </materialDesign:DialogHost.DialogContent>
 
         <Grid>
             <Grid.RowDefinitions>
@@ -117,7 +119,7 @@
                 VerticalAlignment="Center"
                 Command="{Binding ShowCompanyFormCommand}"
                 Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
-                ToolTip="Gast anlegen">
+                ToolTip="Firma anlegen">
                 <materialDesign:PackIcon
                     Width="25"
                     Height="25"

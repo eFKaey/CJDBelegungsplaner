@@ -5,5 +5,5 @@ namespace CJDBelegungsplaner.Domain.Services.Interfaces;
 
 public interface IUserDataService : IDataService<DataServiceResultKind, User>
 {
-    Task<Result<DataServiceResultKind, User>> GetByUserName(string userName);
+    Task<Result<DataServiceResultKind, User>> GetByUserNameAsync(string userName);
 }

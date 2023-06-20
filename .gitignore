@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /LocalDatabase.db
 /LocalDatabase.db-shm
 /LocalDatabase.db-wal
+/LocalDatabase.db

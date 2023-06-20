@@ -146,6 +146,7 @@
                 materialDesign:TextFieldAssist.HasClearButton="True"
                 Style="{StaticResource LocalKey_DatePicker}"
                 TabIndex="3"
+                SelectedDate="{Binding SelectedDate}"
                 Text="{Binding Birthdate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <Grid
@@ -163,6 +164,7 @@
                     materialDesign:HintAssist.Hint="Klasse"
                     materialDesign:TextFieldAssist.HasClearButton="True"
                     DisplayMemberPath="Name"
+                    IsEnabled="{Binding IsClassInputEnabled}"
                     ItemsSource="{Binding Classes}"
                     SelectedItem="{Binding Class}"
                     Style="{StaticResource LocalKey_ComboBox}"
@@ -171,6 +173,7 @@
                     Grid.Row="0"
                     Grid.Column="1"
                     Command="{Binding ShowClassFormCommand}"
+                    IsEnabled="{Binding IsClassInputEnabled}"
                     Style="{StaticResource LocalKey_PlusButton}"
                     ToolTip="Neue Klasse anlegen">
                     <materialDesign:PackIcon Style="{StaticResource LocalKey_PlusIcon}" />

@@ -33,7 +33,7 @@ public class UserDataService : IUserDataService
             .FirstOrDefaultAsync((u) => u.Id == id));
     }
 
-    public async Task<Result<DataServiceResultKind, User>> GetByUserName(string userName)
+    public async Task<Result<DataServiceResultKind, User>> GetByUserNameAsync(string userName)
     {
         return await _dataService.GetOneAsync(
             async () => await _context.Users

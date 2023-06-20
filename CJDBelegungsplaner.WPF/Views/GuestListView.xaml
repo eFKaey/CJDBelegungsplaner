@@ -143,7 +143,7 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding FirstName}" Header="Vorname" />
                     <DataGridTextColumn Binding="{Binding LastName}" Header="Nachname" />
-                    <DataGridTextColumn Binding="{Binding Birthdate, StringFormat=\{0:dd.MM.yyyy\}}" Header="Geburtsdatum">
+                    <DataGridTextColumn Binding="{Binding AgeAndBirthdate}" Header="Alter">
                         <DataGridTextColumn.CellStyle>
                             <Style BasedOn="{StaticResource MaterialDesignDataGridCell}" TargetType="DataGridCell">
                                 <Style.Triggers>

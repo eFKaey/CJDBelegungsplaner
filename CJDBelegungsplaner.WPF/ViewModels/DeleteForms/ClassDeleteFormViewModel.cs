@@ -41,7 +41,7 @@ public class ClassDeleteFormViewModel : DeleteFormBase<Class>
             return isFailure;
         }
 
-        _accountService.MakeUserLogEntry($"Klasse '{DeleteEntity.Name}' gelöscht.");
+        _accountService.MakeUserLogEntry($"Klasse '{DeleteEntity.Name}' mit '{DeleteEntity.GuestCount}' Teilnehmern (Schülern) gelöscht.");
 
         return isSuccess;
     }

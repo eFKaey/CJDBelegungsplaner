@@ -29,6 +29,7 @@ public class GuestReservationDeleteFormViewModel : DeleteFormBase<GuestReservati
         {
             throw new NullReferenceException(nameof(DeleteEntity));
         }
+
         bool isSuccess = false;
 
         Guest guest = DeleteEntity.Guest;
@@ -44,7 +45,7 @@ public class GuestReservationDeleteFormViewModel : DeleteFormBase<GuestReservati
             return isFailure;
         }
 
-        _accountService.MakeUserLogEntry($"Reservierung '{DeleteEntity.Begin}-{DeleteEntity.End}' von '{guest.Name}' gelöscht.");
+        _accountService.MakeUserLogEntry($"Reservierung '{DeleteEntity.Begin}-{DeleteEntity.End}' von '{guest.Name}' gelöscht.", guest);
 
         return isSuccess;
     }

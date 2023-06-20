@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:intermediate="clr-namespace:CJDBelegungsplaner.WPF.Intermediate"
     xmlns:local="clr-namespace:CJDBelegungsplaner.WPF.Views"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -39,27 +40,42 @@
 
             <TextBlock
                 Grid.Row="0"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Center"
                 FontSize="24"
                 Text="Reservierungen" />
 
-            <DatePicker
-                Grid.Row="0"
-                Width="150"
-                HorizontalAlignment="Center"
-                materialDesign:HintAssist.Hint="Start Datum"
-                materialDesign:TextFieldAssist.HasClearButton="True"
-                Style="{StaticResource MaterialDesignFloatingHintDatePicker}"
-                Text="{Binding StartDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <Grid Grid.Row="0" HorizontalAlignment="Right">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
 
-            <ComboBox
-                Grid.Row="0"
-                Width="80"
-                HorizontalAlignment="Right"
-                materialDesign:HintAssist.Hint="Spalten"
-                ItemsSource="{Binding ColumnAmountSource}"
-                SelectedItem="{Binding ColumnAmount}"
-                Style="{StaticResource MaterialDesignFloatingHintComboBox}" />
+                <DatePicker
+                    Grid.Column="0"
+                    Width="150"
+                    Margin="10"
+                    HorizontalAlignment="Center"
+                    materialDesign:HintAssist.Hint="Start Datum"
+                    Style="{StaticResource MaterialDesignFloatingHintDatePicker}"
+                    Text="{Binding StartDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <ComboBox
+                    Grid.Column="1"
+                    Width="80"
+                    Margin="10"
+                    HorizontalAlignment="Right"
+                    materialDesign:HintAssist.Hint="Wochen"
+                    ItemsSource="{Binding ColumnAmountSource}"
+                    SelectedItem="{Binding ColumnAmount}"
+                    Style="{StaticResource MaterialDesignFloatingHintComboBox}" />
+
+                <Button
+                    Grid.Column="2"
+                    Margin="10"
+                    Command="{Binding BuildTableCommand}"
+                    Content="Go" />
+            </Grid>
 
             <!--
                 ._       _       _
@@ -72,7 +88,13 @@
             <DataGrid
                 x:Name="ReservationDataGrid"
                 Grid.Row="2"
+                materialDesign:DataGridAssist.CellPadding="5,5,0,5"
                 AutoGeneratingColumn="ReservationDataGrid_AutoGeneratingColumn"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="False"
+                CanUserResizeRows="False"
                 CanUserSortColumns="False"
                 IsReadOnly="True"
                 ItemsSource="{Binding DataTable}">
@@ -90,25 +112,97 @@
                     <DataTemplate x:Key="ClassReservationContainerTemplate">
                         <Border
                             Padding="3"
-                            BorderBrush="LightBlue"
-                            BorderThickness="1">
+                            Background="Transparent"
+                            BorderBrush="{Binding Entity.ColorBrush}">
+                            <Border.ContextMenu>
+                                <ContextMenu Name="ClassContextMenue">
+                                    <MenuItem
+                                        Command="{Binding ViewModel.ShowReservationParticipantsFormCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Teilnehmer Bearbeiten" />
+                                    <MenuItem
+                                        Command="{Binding ViewModel.ShowReservationFormForUpdatingClassReservationCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Reservierung Bearbeiten" />
+                                    <MenuItem
+                                        Command="{Binding ViewModel.ShowClassFormCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Klasse Bearbeiten" />
+                                    <MenuItem
+                                        Command="{Binding ViewModel.ShowDeleteClassReservationMessageCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Löschen" />
+                                    <MenuItem
+                                        Click="ShowGuestDetailsMenuItem_Click"
+                                        Header="Teilnehmer Details"
+                                        ItemsSource="{Binding Entity.Guests}">
+                                        <MenuItem.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}" />
+                                            </DataTemplate>
+                                        </MenuItem.ItemTemplate>
+                                    </MenuItem>
+                                </ContextMenu>
+                            </Border.ContextMenu>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderThickness" Value="1" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ReservationBeginsOrEndsThisWeek}" Value="begins">
+                                            <Setter Property="BorderThickness" Value="1,1,0,1" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ReservationBeginsOrEndsThisWeek}" Value="ends">
+                                            <Setter Property="BorderThickness" Value="0,1,1,1" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ReservationBeginsOrEndsThisWeek}" Value="none">
+                                            <Setter Property="BorderThickness" Value="0,1,0,1" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <Grid>
-                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path=Info}" />
-                                <Button
-                                    Margin="0,0,10,0"
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding Entity.Name}" />
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    VerticalAlignment="Center"
+                                    FontSize="10"
+                                    Text="{Binding DateRangeShortFormated, StringFormat='\{0\}'}" />
+                                <materialDesign:PackIcon
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Width="15"
+                                    Height="15"
+                                    Margin="0,0,15,0"
                                     HorizontalAlignment="Right"
-                                    Command="{Binding Path=DataContext.ShowReservationFormForUpdatingClassReservationCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                    CommandParameter="{Binding}"
-                                    Content="O"
-                                    Style="{StaticResource SimpleTextButton}"
-                                    ToolTip="Klassen Reservierung bearbeiten" />
-                                <Button
+                                    Kind="People">
+                                    <materialDesign:PackIcon.Style>
+                                        <Style TargetType="materialDesign:PackIcon">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Reservation.ParticipantsCount}" Value="0">
+                                                    <Setter Property="Foreground" Value="Red" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </materialDesign:PackIcon.Style>
+                                </materialDesign:PackIcon>
+                                <TextBlock
+                                    Grid.Row="1"
+                                    Grid.Column="1"
                                     HorizontalAlignment="Right"
-                                    Command="{Binding Path=DataContext.ShowDeleteClassReservationMessageCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                    CommandParameter="{Binding}"
-                                    Content="X"
-                                    Style="{StaticResource SimpleTextButton}"
-                                    ToolTip="Klassen Reservierung löschen" />
+                                    Text="{Binding Reservation.ParticipantsCount, StringFormat='\{0\}'}" />
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -125,25 +219,51 @@
                     <DataTemplate x:Key="GuestReservationContainerTemplate">
                         <Border
                             Padding="3"
-                            BorderBrush="LightCoral"
-                            BorderThickness="1">
+                            Background="Transparent"
+                            BorderBrush="RosyBrown">
+                            <Border.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem
+                                        Command="{Binding ViewModel.ShowReservationFormForUpdatingGuestReservationCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Reservierung Bearbeiten" />
+                                    <MenuItem
+                                        Command="{Binding ViewModel.ShowDeleteGuestReservationMessageCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Reservierung Löschen" />
+                                    <MenuItem
+                                        Command="{Binding ViewModel.ShowGuestFormCommand}"
+                                        CommandParameter="{Binding}"
+                                        Header="Gast Bearbeiten" />
+                                </ContextMenu>
+                            </Border.ContextMenu>
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderThickness" Value="1" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ReservationBeginsOrEndsThisWeek}" Value="begins">
+                                            <Setter Property="BorderThickness" Value="1,1,0,1" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ReservationBeginsOrEndsThisWeek}" Value="ends">
+                                            <Setter Property="BorderThickness" Value="0,1,1,1" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ReservationBeginsOrEndsThisWeek}" Value="none">
+                                            <Setter Property="BorderThickness" Value="0,1,0,1" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <Grid>
-                                <TextBlock HorizontalAlignment="Left" Text="{Binding Path=Info}" />
-                                <Button
-                                    Margin="0,0,10,0"
-                                    HorizontalAlignment="Right"
-                                    Command="{Binding Path=DataContext.ShowReservationFormForUpdatingGuestReservationCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                    CommandParameter="{Binding}"
-                                    Content="O"
-                                    Style="{StaticResource SimpleTextButton}"
-                                    ToolTip="Gast Reservierung bearbeiten" />
-                                <Button
-                                    HorizontalAlignment="Right"
-                                    Command="{Binding Path=DataContext.ShowDeleteGuestReservationMessageCommand, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
-                                    CommandParameter="{Binding}"
-                                    Content="X"
-                                    Style="{StaticResource SimpleTextButton}"
-                                    ToolTip="Gast Reservierung löschen" />
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto" />
+                                    <RowDefinition Height="auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="0" Text="{Binding Entity.Name}" />
+                                <TextBlock
+                                    Grid.Row="1"
+                                    VerticalAlignment="Center"
+                                    FontSize="10"
+                                    Text="{Binding DateRangeShortFormated, StringFormat='\{0\}'}" />
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -160,7 +280,6 @@
                     <DataTemplate x:Key="ButtonReservationContainerTemplate">
                         <Grid>
                             <Button
-                                Grid.Row="1"
                                 Width="30"
                                 Height="30"
                                 HorizontalAlignment="Center"
@@ -174,6 +293,66 @@
                                     Height="15"
                                     Kind="Plus" />
                             </Button>
+                        </Grid>
+                    </DataTemplate>
+                    <!--
+                        ._    _                _             _______                   _       _
+                        | |  | |              | |           |__   __|                 | |     | |
+                        | |__| | ___  __ _  __| | ___ _ __     | | ___ _ __ ___  _ __ | | __ _| |_ ___
+                        |  __  |/ _ \/ _` |/ _` |/ _ \ '__|    | |/ _ \ '_ ` _ \| '_ \| |/ _` | __/ _ \
+                        | |  | |  __/ (_| | (_| |  __/ |       | |  __/ | | | | | |_) | | (_| | ||  __/
+                        |_|  |_|\___|\__,_|\__,_|\___|_|       |_|\___|_| |_| |_| .__/|_|\__,_|\__\___|
+                        ........................................................| |
+                        ........................................................|_|
+                        
+                        Das Binding ist vom Typ DataColumnWeek.
+                    -->
+                    <DataTemplate x:Key="ReservationDataGridColumnHeaderTemplate">
+                        <Grid MinWidth="130">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock
+                                Grid.Row="0"
+                                HorizontalAlignment="Center"
+                                FontSize="15"
+                                Text="{Binding WeekNumber}" />
+                            <TextBlock
+                                Grid.Row="1"
+                                HorizontalAlignment="Center"
+                                FontWeight="Normal"
+                                Text="{Binding DateRangeShortFormated, StringFormat='\{0\}'}" />
+                            <Grid Grid.Row="2" HorizontalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} / {1}">
+                                            <Binding Path="BedCount" />
+                                            <Binding Path="BedCountMax" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsBedCountMaxExceeded}" Value="True">
+                                                    <Setter Property="Foreground" Value="Red" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <materialDesign:PackIcon
+                                    Grid.Column="1"
+                                    Width="15"
+                                    Height="15"
+                                    Margin="5,0,0,0"
+                                    Kind="Bed" />
+                            </Grid>
                         </Grid>
                     </DataTemplate>
                 </DataGrid.Resources>

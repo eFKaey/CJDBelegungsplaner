@@ -8,7 +8,6 @@ using CJDBelegungsplaner.WPF.Services.Interfaces;
 using System.ComponentModel;
 using System.Linq;
 using System;
-using CJDBelegungsplaner.Domain.Services.Interfaces;
 using System.Collections.Generic;
 using System.Windows.Data;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,17 +21,6 @@ namespace CJDBelegungsplaner.WPF.ViewModels;
 public partial class GuestListViewModel : ViewModelBase
 {
     #region Properties/Fields
-
-    private readonly GuestListViewModelStore _guestListViewModelStore;
-    private readonly Func<IServiceScope> _createServiceScope;
-    private readonly MainWindowViewModelStore _mainViewModelStore;
-    private readonly ClassListViewModelStore _classListViewModelStore;
-    private readonly CompanyListViewModelStore _companyListViewModelStore;
-    private readonly IDataHelperSevice _dataHelperSevice;
-    private readonly GuestDetailsViewModelStore _guestDetailsViewModelStore;
-    private readonly DataStore _dataStore;
-
-    private IServiceScope _serviceScope;
 
     [ObservableProperty]
     private ObservableCollection<Guest>? _guests;
@@ -59,23 +47,34 @@ public partial class GuestListViewModel : ViewModelBase
     [ObservableProperty]
     private GuestListFilter? _filter;
 
-    private Guest? _deleteGuest = null;
-
     #endregion
 
     #region Konstruktor
 
+    private readonly GuestListViewModelStore _guestListViewModelStore;
+    private readonly Func<IServiceScope> _createServiceScope;
+    private readonly MainWindowViewModelStore _mainViewModelStore;
+    private readonly ClassListViewModelStore _classListViewModelStore;
+    private readonly CompanyListViewModelStore _companyListViewModelStore;
+    private readonly IDataHelperSevice _dataHelperSevice;
+    private readonly GuestDetailsViewModelStore _guestDetailsViewModelStore;
+    private readonly DataStore _dataStore;
+    private readonly IDocumentFolderService _documentFolderService;
+    private readonly IDialogService _dialogService;
+
+    private IServiceScope _serviceScope;
+
     public GuestListViewModel(
         GuestListViewModelStore guestListViewModelStore,
-        IClassDataService classDataService,
         Func<IServiceScope> createServiceScope,
         MainWindowViewModelStore mainViewModelStore,
-        IGenericDataService<Company> companyDataService,
         ClassListViewModelStore classListViewModelStore,
         CompanyListViewModelStore companyListViewModelStore,
         IDataHelperSevice dataHelperSevice,
         GuestDetailsViewModelStore guestDetailsViewModelStore,
-        DataStore dataStore)
+        DataStore dataStore,
+        IDocumentFolderService documentFolderService,
+        IDialogService dialogService)
     {
         _guestListViewModelStore = guestListViewModelStore;
         _createServiceScope = createServiceScope;
@@ -85,6 +84,8 @@ public partial class GuestListViewModel : ViewModelBase
         _dataHelperSevice = dataHelperSevice;
         _guestDetailsViewModelStore = guestDetailsViewModelStore;
         _dataStore = dataStore;
+        _documentFolderService = documentFolderService;
+        _dialogService = dialogService;
 
         _mainViewModelStore.Modal.NavigateTo(typeof(ProgressDialogViewModel));
 
@@ -140,7 +141,7 @@ public partial class GuestListViewModel : ViewModelBase
 
         if (form.IsNewEntity)
         {
-            form.SaveCompleted = (guest) => Guests.Add(guest);
+            form.SaveCompleted = (guest, formWhileSaving) => Guests.Add(guest);
 
             if (!string.IsNullOrEmpty(Filter?.ClassName))
             {
@@ -150,7 +151,7 @@ public partial class GuestListViewModel : ViewModelBase
         }
         else
         {
-            form.SaveCompleted = (guest) => GuestList.View.Refresh();
+            form.SaveCompleted = (guest, formWhileSaving) => GuestList.View.Refresh();
         }
 
         form.ExecuteClose = CloseDialog;
@@ -170,14 +171,31 @@ public partial class GuestListViewModel : ViewModelBase
 
         _serviceScope = _createServiceScope();
         var form = (GuestDeleteFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(GuestDeleteFormViewModel));
-        form.DeleteMessage = "Möchten sie den Gast und alle seine Daten wirklich löschen?";
+        form.DeleteMessage = "Möchten sie den Gast und alle seine Daten (einschließlich seiner Dokumente) wirklich löschen?";
         form.DeleteEntity = deleteGuest;
-        form.DeleteCompleted = () => Guests!.Remove(deleteGuest);
+        form.DeleteCompleted = () =>
+        {
+            DeleteGuestDocumentFolder(deleteGuest);
+            Guests!.Remove(deleteGuest);
+        };
         form.ExecuteClose = CloseDialog;
 
         CurrentFormViewModel = form;
 
         OpenDialog();
+    }
+
+    private void DeleteGuestDocumentFolder(Guest guest)
+    {
+        string? errorMsg = _documentFolderService.DeleteFolder(guest.Id.ToString());
+        if (errorMsg is not null)
+        {
+            _dialogService.ShowMessageBox(
+                $"Fehler beim Löschen des Dokumenten-Ordners '{guest.Id}'.\nBitte machen Sie ein Screenshot von dieser Meldung!\n\n{errorMsg}",
+                "Fehler",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
     }
 
     private void OpenDialog()

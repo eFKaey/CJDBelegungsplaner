@@ -71,7 +71,7 @@ public class HandleResultService : IHandleResultService
         ///
         else if (kind == AuthenticationResultKind.PasswordsDoNotMatch || kind == AuthenticationResultKind.UserWasNotFound)
         {
-            ShowDialog(dialogType, "Bitte überprüfen sie ihre Eingeben oder wenden sie sich an den heiligen Administrator.", "Access denied.", MessageBoxImage.Stop);
+            ShowDialog(dialogType, "Bitte überprüfen sie ihre Eingaben oder wenden sie sich an den heiligen Administrator.", "Access denied.", MessageBoxImage.Stop);
         }
         else if (kind == AuthenticationResultKind.PasswordIsToShort)
         {
@@ -98,6 +98,13 @@ public class HandleResultService : IHandleResultService
         else if (kind == CompanyDataServiceResultKind.NameAlreadyExists)
         {
             ShowDialog(dialogType, "Eine Firma mit dem selben Namen ist bereits vorhanden.", kind, MessageBoxImage.Warning);
+        }
+        ///
+        /// BedDataServiceResultKind
+        ///
+        else if (kind == BedDataServiceResultKind.NameAlreadyExists)
+        {
+            ShowDialog(dialogType, "Ein Bett mit dem selben Namen ist bereits vorhanden.", kind, MessageBoxImage.Warning);
         }
         ///
         /// Else

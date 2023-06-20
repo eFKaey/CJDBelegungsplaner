@@ -41,7 +41,7 @@ public class GuestDeleteFormViewModel : DeleteFormBase<Guest>
             return isFailure;
         }
 
-        _accountService.MakeUserLogEntry($"Gast(Schüler) '{DeleteEntity.FirstName} {DeleteEntity.LastName} gelöscht.");
+        _accountService.MakeUserLogEntry($"Gast(Schüler) mit ID '{DeleteEntity.Id}' gelöscht.");
 
         return isSuccess;
     }

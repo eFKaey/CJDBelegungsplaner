@@ -1,0 +1,81 @@
+﻿<UserControl
+    x:Class="CJDBelegungsplaner.WPF.Components.OccupancyDayElement"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:CJDBelegungsplaner.WPF.Components"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <ContextMenu x:Key="ContextMenu" Visibility="{Binding ViewModel.HasPermissionFoEditing, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Separator>
+                <Separator.Template>
+                    <ControlTemplate TargetType="Separator">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Foreground="RosyBrown" Text="{Binding Day.Date, StringFormat='D'}" />
+                            <Separator />
+                        </StackPanel>
+                    </ControlTemplate>
+                </Separator.Template>
+            </Separator>
+            <MenuItem
+                Command="{Binding ViewModel.ShowOccupancyFormCommand}"
+                CommandParameter="{Binding Day}"
+                Header="Belegung bearbeiten" />
+            <MenuItem
+                Command="{Binding ViewModel.ShowOccupancyDeleteMessageCommand}"
+                CommandParameter="{Binding Day}"
+                Header="Belegung löschen"
+                Visibility="{Binding Day.HasOccupancy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        </ContextMenu>
+    </UserControl.Resources>
+
+    <Border BorderThickness="1" ContextMenu="{StaticResource ContextMenu}">
+        <TextBlock HorizontalAlignment="Center">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Text" Value=" " />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Day.IsFirstDay}" Value="True">
+                            <Setter Property="Text" Value="↓" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Day.IsLastDay}" Value="True">
+                            <Setter Property="Text" Value="↑" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Gray" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding Day.HasOccupancy}" Value="True">
+                        <Setter Property="Background" Value="{Binding Day.Interval.ColorBrush}" />
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding Day.IsWeekend}" Value="True">
+                        <Setter Property="BorderBrush" Value="LightBlue" />
+                    </DataTrigger>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                            <Condition Binding="{Binding Day.IsWeekend}" Value="False" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="BorderBrush" Value="Black" />
+                    </MultiDataTrigger>
+                    <MultiDataTrigger>
+                        <MultiDataTrigger.Conditions>
+                            <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
+                            <Condition Binding="{Binding Day.IsWeekend}" Value="True" />
+                        </MultiDataTrigger.Conditions>
+                        <Setter Property="BorderBrush" Value="Blue" />
+                    </MultiDataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+    </Border>
+
+</UserControl>

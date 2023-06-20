@@ -4,18 +4,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:CJDBelegungsplaner.WPF.Views"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
-    <Grid>
+    <Grid MinHeight="600">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
 
         <TextBlock
@@ -35,59 +36,222 @@
             Grid.Row="1"
             Grid.Column="0"
             Margin="10,0,0,0">
+            <Grid.Resources>
+                <Style x:Key="LocalKey_TextBlockStyle" TargetType="TextBlock">
+                    <Setter Property="FontSize" Value="15" />
+                    <Setter Property="Margin" Value="0,5,10,0" />
+                </Style>
+                <Style BasedOn="{StaticResource LocalKey_TextBlockStyle}" TargetType="TextBlock" />
+                <Style
+                    x:Key="LocalKey_TextBoxMultiline"
+                    BasedOn="{StaticResource MaterialDesignFilledTextBox}"
+                    TargetType="TextBox">
+                    <Setter Property="Margin" Value="0,5,10,0" />
+                    <Setter Property="IsEnabled" Value="False" />
+                    <Setter Property="TextWrapping" Value="Wrap" />
+                    <Setter Property="MaxWidth" Value="300" />
+                </Style>
+                <Style
+                    x:Key="LocalKey_ButtonStyle"
+                    BasedOn="{StaticResource MaterialDesignRaisedButton}"
+                    TargetType="Button">
+                    <Setter Property="Margin" Value="0,5,10,0" />
+                    <Setter Property="Width" Value="120" />
+                    <Setter Property="Height" Value="22" />
+                    <Setter Property="FontSize" Value="12" />
+                </Style>
+            </Grid.Resources>
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
 
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="0"
-                Text="Vorname: " />
+                Text="ID: " />
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="1"
-                Text="{Binding Guest.FirstName}" />
+                Text="{Binding Guest.Id}" />
 
             <TextBlock
                 Grid.Row="1"
                 Grid.Column="0"
-                Text="Nachname: " />
+                Text="Vorname: " />
             <TextBlock
                 Grid.Row="1"
                 Grid.Column="1"
-                Text="{Binding Guest.LastName}" />
-        </Grid>
+                Text="{Binding Guest.FirstName}" />
 
+            <TextBlock
+                Grid.Row="2"
+                Grid.Column="0"
+                Text="Nachname: " />
+            <TextBlock
+                Grid.Row="2"
+                Grid.Column="1"
+                Text="{Binding Guest.LastName}" />
+
+            <TextBlock
+                Grid.Row="3"
+                Grid.Column="0"
+                Text="Alter: " />
+            <TextBlock
+                Grid.Row="3"
+                Grid.Column="1"
+                Text="{Binding Guest.AgeAndBirthdate}">
+                <TextBlock.Style>
+                    <Style BasedOn="{StaticResource LocalKey_TextBlockStyle}" TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Guest.IsUnderAge}" Value="True">
+                                <Setter Property="Foreground" Value="Red" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <TextBlock
+                Grid.Row="4"
+                Grid.Column="0"
+                Text="Telefonnummer: " />
+            <TextBlock
+                Grid.Row="4"
+                Grid.Column="1"
+                Text="{Binding Guest.PhoneNumber}" />
+
+            <TextBlock
+                Grid.Row="5"
+                Grid.Column="0"
+                Text="Email: " />
+            <TextBlock
+                Grid.Row="5"
+                Grid.Column="1"
+                Text="{Binding Guest.Email}" />
+
+            <TextBlock
+                Grid.Row="6"
+                Grid.Column="0"
+                Text="Straße: " />
+            <TextBlock
+                Grid.Row="6"
+                Grid.Column="1"
+                Text="{Binding Guest.Address.StreetAndHouseNumber}" />
+
+            <TextBlock
+                Grid.Row="7"
+                Grid.Column="0"
+                Text="Stadt: " />
+            <TextBlock
+                Grid.Row="7"
+                Grid.Column="1"
+                Text="{Binding Guest.Address.PostCodeAndCity}" />
+
+            <TextBlock
+                Grid.Row="8"
+                Grid.Column="0"
+                Text="Klasse: " />
+            <TextBlock
+                Grid.Row="8"
+                Grid.Column="1"
+                Text="{Binding Guest.Class.Name}" />
+
+            <TextBlock
+                Grid.Row="9"
+                Grid.Column="0"
+                Text="Firma: " />
+            <TextBlock
+                Grid.Row="9"
+                Grid.Column="1"
+                Text="{Binding Guest.Company.Name}" />
+
+            <TextBlock
+                Grid.Row="10"
+                Grid.Column="0"
+                Text="Information: " />
+            <TextBox
+                Grid.Row="10"
+                Grid.Column="1"
+                Style="{StaticResource LocalKey_TextBoxMultiline}"
+                Text="{Binding Guest.Information, Mode=OneWay}" />
+
+            <TextBlock
+                Grid.Row="11"
+                Grid.Column="0"
+                Text="Dokumente: " />
+            <Button
+                Grid.Row="11"
+                Grid.Column="1"
+                Width="200"
+                HorizontalAlignment="Left"
+                Style="{StaticResource LocalKey_ButtonStyle}"
+                Content="Ordner öffnen" 
+                Command="{Binding ShowDocumentsCommand}"/>
+        </Grid>
+        
         <!--
             Reservierungen
         -->
-        <Grid
+        <StackPanel
             Grid.Row="1"
             Grid.Column="1"
-            Margin="0,0,10,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+            Margin="50,0,10,0">
+
+            <TextBlock FontWeight="Bold" Text="Reservierungen mit der Klasse" />
+            <ListBox
+                DisplayMemberPath="DateRangeFormatted"
+                IsHitTestVisible="False"
+                ItemsSource="{Binding Guest.ClassReservations}" />
+
             <TextBlock
-                Grid.Row="0"
-                HorizontalAlignment="Center"
-                Text="Reservierungen" />
+                Margin="0,40,0,0"
+                FontWeight="Bold"
+                Text="Reservierungen der Person" />
+            <ListBox
+                DisplayMemberPath="DateRangeFormatted"
+                IsHitTestVisible="False"
+                ItemsSource="{Binding Guest.Reservations}" />
+
+            <TextBlock
+                Margin="0,40,0,0"
+                FontWeight="Bold"
+                Text="Betten Belegungen" />
             <DataGrid
-                Grid.Row="1"
-                ItemsSource="{Binding ReservationList.View}"
-                Style="{StaticResource CommonDataGrid}">
+                materialDesign:DataGridAssist.SelectedCellBorderBrush="Transparent"
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="False"
+                CanUserResizeRows="False"
+                CanUserSortColumns="False"
+                EnableRowVirtualization="False"
+                IsHitTestVisible="False"
+                IsReadOnly="True"
+                ItemsSource="{Binding Guest.Occupancies}"
+                SelectionUnit="FullRow">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Begin, StringFormat=\{0:dd.MM.yyyy\}}" Header="Von" />
-                    <DataGridTextColumn Binding="{Binding End, StringFormat=\{0:dd.MM.yyyy\}}" Header="Bis" />
+                    <DataGridTextColumn Binding="{Binding Bed.Name}" Header="Bett" />
+                    <DataGridTextColumn Binding="{Binding DateRangeFormatted}" Header="Von-Bis" />
                 </DataGrid.Columns>
             </DataGrid>
-        </Grid>
+
+        </StackPanel>
 
     </Grid>
 </UserControl>

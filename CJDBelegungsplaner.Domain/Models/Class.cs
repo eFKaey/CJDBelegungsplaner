@@ -34,6 +34,8 @@ public class Class : EntityObject, IModelWithReservation<ClassReservation>
             Color = Color.FromRgb(bytes[2], bytes[1], bytes[0]);
         }
     }
+    [NotMapped]
+    public Brush ColorBrush => new SolidColorBrush(Color);
 
     // Dokumente ?
 

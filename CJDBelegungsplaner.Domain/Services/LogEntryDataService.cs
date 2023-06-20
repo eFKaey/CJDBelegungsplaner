@@ -45,6 +45,15 @@ public class LogEntryDataService : ILogEntryDataService
         return await _dataService.GetListAsync(
             async () => await _context.LogEntries
             .Include(l => l.User)
+            .OrderByDescending(l => l.Id)
+            .ToListAsync());
+    }
+
+    public async Task<Result<DataServiceResultKind>> DeleteAllBeforeAsync(DateTime deadLine)
+    {
+        return await _dataService.DeleteRangeAsync(
+            async () => await _context.LogEntries
+            .Where(eintrag => eintrag.Created < deadLine)
             .ToListAsync());
     }
 }

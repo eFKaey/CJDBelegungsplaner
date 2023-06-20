@@ -12,6 +12,7 @@ using CJDBelegungsplaner.WPF.Stores;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using CJDBelegungsplaner.WPF.ViewModels.Interfaces;
+using System.Collections.Generic;
 
 namespace CJDBelegungsplaner.WPF.ViewModels.InputForms;
 
@@ -52,6 +53,8 @@ public partial class GuestInputFormViewModel : InputFormBase<Guest>
     //[NotifyDataErrorInfo]
     //[IsElementOf(nameof(ClassNames), ErrorMessage = "Muss existierende Klasse sein!")]
     private Class? _class;
+    [ObservableProperty]
+    private bool _isClassInputEnabled = true;
 
     [ObservableProperty]
     //[NotifyDataErrorInfo]
@@ -115,18 +118,14 @@ public partial class GuestInputFormViewModel : InputFormBase<Guest>
         }
     }
 
+    public DateTime? SelectedDate { get; set; } = DateTime.Now.AddYears(-17);
+
     #endregion
 
     #region Dialog Fields/Properties
 
     [ObservableProperty]
     private IViewModel? _currentFormViewModel;
-
-    [ObservableProperty]
-    private CompanyInputFormViewModel _companyForm;
-
-    [ObservableProperty]
-    private ClassInputFormViewModel _classForm;
 
     [ObservableProperty]
     private bool _isDialogOpen;
@@ -163,8 +162,8 @@ public partial class GuestInputFormViewModel : InputFormBase<Guest>
 
     private async Task LoadAsync()
     {
-        Classes = await _dataStore.GetClassesAsync();
-        Companies = await _dataStore.GetCompaniesAsync();
+        Classes = await _dataStore.GetClassesAsync(true);
+        Companies = await _dataStore.GetCompaniesAsync(true);
     }
 
     public override async Task<(bool, Guest)> CreateAsync()
@@ -204,7 +203,7 @@ public partial class GuestInputFormViewModel : InputFormBase<Guest>
             return (isFailure, guest);
         }
 
-        _accountService.MakeUserLogEntry($"Gast(Schüler) '{FirstName} {LastName}' angelegt.");
+        _accountService.MakeUserLogEntry($"Gast(Schüler) '{FirstName} {LastName}' angelegt.", guest);
 
         return (isSuccess, guest);
     }
@@ -216,6 +215,11 @@ public partial class GuestInputFormViewModel : InputFormBase<Guest>
         Result<DataServiceResultKind, Guest> result;
 
         Guest tempGuest = EditEntity!.Clone();
+
+        if (EditEntity.Class is not null && EditEntity.Class != Class)
+        {
+            EditEntity.ClassReservations = new List<ClassReservation>();
+        }
 
         EditEntity.FirstName = FirstName;
         EditEntity.LastName = LastName;
@@ -240,7 +244,7 @@ public partial class GuestInputFormViewModel : InputFormBase<Guest>
             return (isFailure, EditEntity);
         }
 
-        _accountService.MakeUserLogEntry($"Gast(Schüler) '{FirstName} {LastName}' bearbeitet.");
+        _accountService.MakeUserLogEntry($"Gast(Schüler) '{FirstName} {LastName}' bearbeitet.", EditEntity);
 
         return (isSuccess, EditEntity);
     }
@@ -249,12 +253,16 @@ public partial class GuestInputFormViewModel : InputFormBase<Guest>
     private void ShowCompanyForm()
     {
         _serviceScope = _createServiceScope();
-        CompanyForm = (CompanyInputFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(CompanyInputFormViewModel));
-        CurrentFormViewModel = CompanyForm;
+        var form = (CompanyInputFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(CompanyInputFormViewModel));
+        form.SaveCompleted = (company, formWhileSaving) =>
+        {
+            Companies.Add(company);
+            Company = company;
+        };
+        form.ExecuteClose = CloseDialog;
+        CurrentFormViewModel = form;
 
         OpenDialog();
-
-        System.Windows.MessageBox.Show("unfertig");
     }
 
     [RelayCommand]
@@ -266,14 +274,14 @@ public partial class GuestInputFormViewModel : InputFormBase<Guest>
         }
 
         _serviceScope = _createServiceScope();
-        ClassForm = (ClassInputFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(ClassInputFormViewModel));
-        ClassForm.SaveCompleted = (@class) =>
+        var form = (ClassInputFormViewModel)_serviceScope.ServiceProvider.GetRequiredService(typeof(ClassInputFormViewModel));
+        form.SaveCompleted = (@class, formWhileSaving) =>
         {
             Classes.Add(@class);
             Class = @class;
         };
-        ClassForm.ExecuteClose = CloseDialog;
-        CurrentFormViewModel = ClassForm;
+        form.ExecuteClose = CloseDialog;
+        CurrentFormViewModel = form;
 
         OpenDialog();
     }

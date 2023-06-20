@@ -3,6 +3,12 @@ using CJDBelegungsplaner.Domain.Models;
 
 namespace CJDBelegungsplaner.Domain.Services.Interfaces;
 
+/// <summary>
+/// Der IGenericDataService erweitert die standard CRUD-Opererationen des IDataService um dynamische Abfragen,
+/// deren LINQ per Parameter übergeben wird. Üblicherweise übernimmt der GenericDataService auch das
+/// Exception Handling und gibt entsprechende ResultKinds zurück.
+/// </summary>
+/// <typeparam name="TModel"></typeparam>
 public interface IGenericDataService<TModel> : IDataService<DataServiceResultKind, TModel>
     where TModel : EntityObject
 {
@@ -19,4 +25,11 @@ public interface IGenericDataService<TModel> : IDataService<DataServiceResultKin
     /// <param name="funcLINQ"></param>
     /// <returns></returns>
     Task<Result<DataServiceResultKind, TModel>> GetOneAsync(Func<Task<TModel>> funcLINQ);
+
+    /// <summary>
+    /// Anahnd der übergebenen LINQ Funktion werden die Datensätze gelöscht.
+    /// </summary>
+    /// <param name="funcLINQ"></param>
+    /// <returns></returns>
+    Task<Result<DataServiceResultKind>> DeleteRangeAsync(Func<Task<ICollection<TModel>>> funcLINQ);
 }

@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using CJDBelegungsplaner.Domain.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Utility.ExtensionMethods;
 
 namespace CJDBelegungsplaner.WPF.Intermediate;
@@ -12,7 +14,13 @@ public class DataColumnWeek : DataColumn
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
 
-    public int BedCount { get; set; }
+    public string DateRangeShortFormated => $"{StartDate.ToString("M")} - {EndDate.ToString("M")}";
+
+    public int BedCountMax { get; set; }
+
+    public int BedCount { get; set; } = 0;
+
+    public bool IsBedCountMaxExceeded => BedCount > BedCountMax;
 
     public int ButtonRow { get; set; } = 0;
     public ButtonCellContainer ButtonCellContainer { get; private set; }
@@ -40,10 +48,10 @@ public class DataColumnWeek : DataColumn
 
     private void Initialize(DateTime oneDateOfWeek, int bedCount)
     {
-        WeekNumber = oneDateOfWeek.GetWeekISO8601();
+        WeekNumber = ISOWeek.GetWeekOfYear(oneDateOfWeek);
         FillDates(WeekNumber);
-        BedCount = bedCount;
-        Caption = $"{WeekNumber} ({StartDate.ToString("M")} - {EndDate.ToString("M")}) [{BedCount}] ";
+        BedCountMax = bedCount;
+        BedCount = 0;
     }
 
     private void FillDates(int weekNumber)
