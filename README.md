@@ -16,3 +16,6 @@ Reservation View
 
 Bed Occupation View
 ![grafik](https://github.com/eFKaey/CJDBelegungsplaner/assets/58138669/72907333-3b88-467e-9e76-717b12e8c147)
+
+A part 
+[Projektdokumentation(german).pdf](https://github.com/eFKaey/CJDBelegungsplaner/files/11817791/Projektdokumentation.german.pdf)
